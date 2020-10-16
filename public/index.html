@@ -14,22 +14,33 @@
   <nav class="navbar navbar-dark fixed-top">
     <a class="navbar-brand" href="#">Rose GroupBuy</a>
   </nav>
+
   <div id="listPage" class="container page-container">
 
-    <div id="groupListContainer">
-      <div class="card">
-        <div class="card-body">
-          <h5 class="card-title">Group Name</h5>
-          <!-- <h6 class="card-subtitle mb-2 text-muted">Owner</h6> -->
-          <p class="card-text">Owner</p>
-          <p class="card-text">End Time</p>
-          <p class="card-text">Tags</p>
+    <div id="groupListContainer" class="row" style="justify-content: center;">
+      <div class="col-md-8">
+        <div class="card border-secondary">
+            <div class="card-header" id = "cardHeaderContianer">
+                <!-- <h3><a id="cardTitile" href="" class="badge badge-primary">Black Friday Macy's </a><span style="font-size: 75%;"><i class="material-icons">groups</i>+3</span></h3> -->
+                <span id = "card-title">Black Friday Macy's</span><span class="badge badge-secondary" style="font-size: 1.75em;"><i class="material-icons">groups</i>&nbsp; +3</span>
+              </div>
+            <div class="card-body text-secondary">
+                <span id="cardOwner" class="h5">Tiantian Zhang</span>
+                <br><br>
+                <span id="cardTimeTag" > End Time:</span>
+                <span id="cardTime" class="font-italic"> 10/16/2020 12:17AM</span>
+                <br><br>
+                <span id="cardTime" class=""> Tags:</span>
+                <span class="badge badge-pill badge-primary">Primary</span>
+            </div>
+            
         </div>
-      </div>  
-
+        <br><br>
+    </div>
     </div>
     
   </div>
+
   <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addGroupDialog">
     <i class="material-icons">add</i>
   </button>
