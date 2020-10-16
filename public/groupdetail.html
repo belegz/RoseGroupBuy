@@ -15,7 +15,8 @@
     <a class="navbar-brand" href="/">Group Detail</a>
 
     <div class="dropdown pull-xs-right">
-      <button class="btn bmd-btn-icon dropdown-toggle" type="button" id="lr1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <button class="btn bmd-btn-icon dropdown-toggle" type="button" id="lr1" data-toggle="dropdown"
+        aria-haspopup="true" aria-expanded="false">
         <i class="material-icons">more_vert</i>
       </button>
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="lr1">
@@ -36,85 +37,154 @@
         <p class="card-text">End Time</p>
         <p class="card-text">Tags</p>
 
+
+        <!-- <div class="accordion" id="accordionList">
+          <div class="accordion-group">
+            <div class="accordion-heading">
+              <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2">
+
+              </a>
+            </div>
+            <div id="collapseTwo" class="accordion-body collapse">
+              <div class="accordion-inner">
+                Anim pariatur cliche... Anim pariatur cliche... Anim pariatur cliche... Anim pariatur cliche... Anim
+                pariatur cliche... Anim pariatur cliche... Anim pariatur cliche... Anim pariatur cliche...
+
+                ACCORDION INSIDE ACCORDION ITEM TWO
+                <div class="accordion" id="accordion1">
+
+                  <div class="accordion-group">
+                    <div class="accordion-heading">
+                      <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion1" href="#collapseOneA">
+                        Collapsible Group 1
+                      </a>
+                    </div>
+                    <div id="collapseOneA" class="accordion-body collapse">
+                      <div class="accordion-inner">
+                        Anim pariatur cliche... Anim pariatur cliche... Anim pariatur cliche... Anim pariatur cliche...
+                        Anim pariatur cliche... Anim pariatur cliche... Anim pariatur cliche... Anim pariatur cliche...
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+
+
+              </div>
+            </div>
+          </div>
+
+        </div> -->
+
         <div id="accordion">
 
           <div class="card">
             <div class="card-header" id="headingOne">
               <h5 class="mb-0">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-                  Member List
-                </button>
-              </h5>
-            </div>
-        
-            <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordion">
-              <div class="card-body">
-                <p class="card-text">John Doe</p>
-              </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <div class="card-header" id="headingOne">
-              <h5 class="mb-0">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="false"
+                  aria-controls="collapseOne">
                   Shopping List
                 </button>
-                <!-- <button class="add-item-button" type="button" data-toggle="modal" data-target="#addItem">
-                  <i class="material-icons">add</i></button> -->
 
-                  <button id="item-fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addItemDialog">
-                    <i class="material-icons">add</i>
-                  </button>
-                
-                  <!-- Modal -->
-                  <div class="modal fade" id="addItemDialog" tabindex="-1" role="dialog" aria-labelledby="Add Item dialog"
-                    aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                      <div class="modal-content">
-                        <div class="modal-header">
-                          <h5 class="modal-title">Add Shopping Item</h5>
+                <button id="item-fab" type="button" class="btn bmd-btn-fab" data-toggle="modal"
+                  data-target="#addItemDialog">
+                  <i class="material-icons">add</i>
+                </button>
+
+                <!-- Modal -->
+                <div class="modal fade" id="addItemDialog" tabindex="-1" role="dialog" aria-labelledby="Add Item dialog"
+                  aria-hidden="true">
+                  <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Add Shopping Item</h5>
+                      </div>
+                      <div class="modal-body">
+
+
+                        <div class="form-group bmd-form-group">
+                          <label for="formGroupExampleInput" class="bmd-label-floating">Item Name</label>
+                          <input type="text" class="form-control" id="inputItemName">
                         </div>
-                        <div class="modal-body">
-                
-                
-                          <div class="form-group bmd-form-group">
-                            <label for="formGroupExampleInput" class="bmd-label-floating">Item Name</label>
-                            <input type="text" class="form-control" id="inputItemName">
-                          </div>
-                          <div class="form-group bmd-form-group">
-                            <label for="formGroupExampleInput2" class="bmd-label-floating">Price</label>
-                            <input type="text" class="form-control" id="inputItemPrice">
-                            <span class="bmd-help">How much is this item?</span>
-                          </div>
-                          <div class="form-group bmd-form-group">
-                            <label for="formGroupExampleInput2" class="bmd-label-floating">Link</label>
-                            <input type="text" class="form-control" id="inputItemLink">
-                            <span class="bmd-help">Is there a link to this item?</span>
-                          </div>
-                
-                
+                        <div class="form-group bmd-form-group">
+                          <label for="formGroupExampleInput2" class="bmd-label-floating">Price</label>
+                          <input type="text" class="form-control" id="inputItemPrice">
+                          <span class="bmd-help">How much is this item?</span>
                         </div>
-                        <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
-                          <button id="submitAddItem" type="button" class="btn btn-primary" data-dismiss="modal">ADD</button>
+                        <div class="form-group bmd-form-group">
+                          <label for="formGroupExampleInput2" class="bmd-label-floating">Link</label>
+                          <input type="text" class="form-control" id="inputItemLink">
+                          <span class="bmd-help">Is there a link to this item?</span>
                         </div>
+
+
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+                        <button id="submitAddItem" type="button" class="btn btn-primary"
+                          data-dismiss="modal">ADD</button>
                       </div>
                     </div>
-                    
                   </div>
+
+                </div>
               </h5>
             </div>
-        
+
             <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
               <div class="card-body">
-                <ul class="list-group list-group-flush">
-                  <li class="list-group-item">Nike shoes</li>
-                  <li class="list-group-item">Hat</li>
-                  <li class="list-group-item">A Bag</li>
-                </ul>
+                <div class="card">
+                  <div class="card-header" id="headingTwo">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false"
+                        aria-controls="collapseTwo">
+                        John Doe
+                      </button>
+                    </h5>
+                  </div>
+      
+                  <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#collapseOne">
+                    <div class="card-body">
+                      <p class="card-text">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item">Nike shoes</li>
+                          <li class="list-group-item">Hat</li>
+                          <li class="list-group-item">A Bag</li>
+                        </ul>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-body">
+                <div class="card">
+                  <div class="card-header" id="headingTwo">
+                    <h5 class="mb-0">
+                      <button class="btn btn-link" data-toggle="collapse" data-target="#collapseThree" aria-expanded="false"
+                        aria-controls="collapseThree">
+                        Tiantian Zhang
+                      </button>
+                    </h5>
+                  </div>
+      
+                  <div id="collapseThree" class="collapse show" aria-labelledby="headingThree" data-parent="#collapseOne">
+                    <div class="card-body">
+                      <p class="card-text">
+                        <ul class="list-group list-group-flush">
+                          <li class="list-group-item">CD</li>
+                        </ul>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+ 
               </div>
             </div>
+
+            
+
           </div>
 
 
@@ -122,7 +192,7 @@
 
       </div>
     </div>
-    
+
   </div>
 
   <!-- Modal -->
@@ -160,7 +230,7 @@
             <input type="text" class="form-control" id="inputTags" placeholder="">
             <span class="bmd-help">What are the benefits?</span>
           </div>
-          
+
 
 
         </div>
