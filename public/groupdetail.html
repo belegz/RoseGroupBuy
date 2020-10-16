@@ -30,8 +30,49 @@
   <div id="groupdetailPage" class="container page-container">
     <div class="card">
       <div class="card-body">
-        <h5 id="cardName" class="card-title"></h5>
+        <h5 id="cardName" class="card-title">Group Name</h5>
         <h6 id="cardOther" class="card-subtitle mb-2 text-muted">Loading...</h6>
+        <p class="card-text">Owner</p>
+        <p class="card-text">End Time</p>
+        <p class="card-text">Tags</p>
+
+        <div id="accordion">
+
+          <div class="card">
+            <div class="card-header" id="headingOne">
+              <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                  Member List
+                </button>
+              </h5>
+            </div>
+        
+            <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordion">
+              <div class="card-body">
+                <p class="card-text">John Doe</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header" id="headingOne">
+              <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  Shopping List
+                </button>
+              </h5>
+            </div>
+        
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+              <div class="card-body">
+                <p class="card-text">Nike Shoes</p>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
       </div>
     </div>
     
