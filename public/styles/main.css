@@ -1,10 +1,16 @@
 body {
     background: #DDDDDD;
+    
 }
 
 .navbar {
     background-color: #800000;
     color: white;
+    justify-content: left; 
+}
+
+.navbar i{
+    margin-top: 8px;
 }
 
 .page-container {
@@ -47,7 +53,7 @@ h3 {
 }
 
 #card-title {
-    /* display: inline-block; */
+    /* display: inline-block; */
     padding: .25em .4em;
     font-size: 1.75em;
     font-weight: 700;
@@ -64,6 +70,50 @@ h3 {
     display: flex;
     justify-content: space-between;
 }
+
+
+
+#navTop button{
+    margin-top: 15px;
+    color:white;
+}
+
+.material-icons{
+    vertical-align: middle;
+    margin-bottom: 5px;
+    color:white;
+}
+
+.sidebar{
+    background: #800000;
+    margin-top: -20px;
+    padding-top: 30px;
+    position: fixed;
+    left:0;
+    width :200px;
+    height: 100%;
+    
+    justify-content: left;
+
+}
+
+.sidebar a{
+    color:#fff;
+    display: block;
+    width: 100%;
+    line-height: 60px;
+    text-decoration: none;
+    padding-left: 10px;
+    box-sizing: border-box;
+    transition: 0.5s;
+    transition-property: background;
+
+}
+
+.sidebar > a:hover{
+    background-color:#19b3d3;
+}
+
 
 /* Remove margins and padding from the list */
 ul {
@@ -130,4 +180,3 @@ ul {
     background-color: #f44336;
     color: white;
   }
-  
