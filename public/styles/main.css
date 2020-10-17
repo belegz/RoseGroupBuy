@@ -6,7 +6,7 @@ body {
 .navbar {
     background-color: #800000;
     color: white;
-    justify-content: left; 
+   /* justify-content: space-between; */
 }
 
 .navbar i{
@@ -15,6 +15,9 @@ body {
 
 .page-container {
     margin-top: 75px;
+}
+#navBarTop{
+    justify-content: left; 
 }
 
 
@@ -28,8 +31,12 @@ body {
 }
 
 #fab:active {
-    transform: translateY(2px);
+    transform: translateY(2px); 
     opacity: 0.8;
+}
+
+#item-fab .material-icons{
+    color: #800000;
 }
 
 .card {
@@ -70,8 +77,6 @@ h3 {
     display: flex;
     justify-content: space-between;
 }
-
-
 
 #navTop button{
     margin-top: 15px;
@@ -127,7 +132,7 @@ ul {
     position: relative;
     padding: 12px 8px 12px 40px;
     background: #eee;
-    font-size: 18px;
+    font-size: 16px;
     transition: 0.2s;
   
     /* make the list items unselectable */
