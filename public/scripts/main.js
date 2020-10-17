@@ -101,7 +101,7 @@ rhit.ListPageController = class {
 
 			newList.appendChild(newCard);
 		}
-		console.log(rhit.fbGroupsManager.length);
+		// console.log(rhit.fbGroupsManager.length);
 
 		// Remove the old qLC
 		const oldList = document.querySelector("#groupListContainer");
@@ -215,6 +215,7 @@ rhit.DetailPageController = class {
 			document.querySelector("#inputTime").value = rhit.fbSingleGroupManager.endTime;
 			document.querySelector("#inputLocation").value = rhit.fbSingleGroupManager.location;
 			document.querySelector("#inputTags").value = rhit.fbSingleGroupManager.tags;
+			console.log('name :>> ', rhit.fbSingleGroupManager.name);
 		});
 
 		$('#editGroupDialog').on('shown.bs.modal', (event) => {
@@ -344,7 +345,7 @@ rhit.main = function () {
 		new rhit.ListPageController();
 	}
 
-	if (document.querySelector("#detailPage")) {
+	if (document.querySelector("#groupdetailPage")) {
 		console.log("You are on detail Page.");
 
 		const queryString = window.location.search;
