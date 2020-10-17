@@ -241,11 +241,11 @@ rhit.DetailPageController = class {
 		// console.log("Update the view");
 		// document.querySelector("#cardGroup").innerHTML = rhit.fbSingleGroupManager.Group;
 		// document.querySelector("#cardMovie").innerHTML = rhit.fbSingleGroupManager.movie;
-		document.querySelector("#cardName").value = rhit.fbSingleGroupManager.name;
-		document.querySelector("#cardSeller").value = rhit.fbSingleGroupManager.seller;
-		document.querySelector("#cardEndTime").value = rhit.fbSingleGroupManager.endTime;
-		document.querySelector("#cardLocation").value = rhit.fbSingleGroupManager.location;
-		document.querySelector("#cardTags").value = rhit.fbSingleGroupManager.tags;
+		document.querySelector("#cardName").innerHTML = rhit.fbSingleGroupManager.name;
+		document.querySelector("#cardSeller").innerHTML = rhit.fbSingleGroupManager.seller;
+		document.querySelector("#cardEndTime").innerHTML = rhit.fbSingleGroupManager.endTime;
+		document.querySelector("#cardLocation").innerHTML = rhit.fbSingleGroupManager.location;
+		document.querySelector("#cardTags").innerHTML = rhit.fbSingleGroupManager.tags;
 	}
 }
 
