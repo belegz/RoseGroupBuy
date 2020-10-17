@@ -65,16 +65,16 @@ rhit.ListPageController = class {
 		return htmlToElement(`
 		<div class="card border-secondary">
 		<div class="card-header" id = "cardHeaderContianer">
-			<span id = "card-title">Black Friday Macy's</span><span class="badge badge-secondary" style="font-size: 1.25em;"><i class="material-icons">groups</i>&nbsp; +3</span>
+			<span id = "card-title">${group.name}</span><span class="badge badge-secondary" style="font-size: 1.25em;"><i class="material-icons">groups</i>&nbsp; +3</span>
 		  </div>
 		<div class="card-body text-secondary">
-			<span id="cardOwner" class="h5">Tiantian Zhang</span>
+			<span id="cardOwner" class="h5">${group.owner}</span>
 			<br><br>
 			<span id="cardTimeTag" > End Time:</span>
-			<span id="cardTime" class="font-italic"> 10/16/2020 12:17AM</span>
+			<span id="cardTime" class="font-italic"> ${group.endTime}</span>
 			<br><br>
 			<span id="cardTime" class=""> Tags:</span>
-			<span class="badge badge-pill badge-primary">Primary</span>
+			<span class="badge badge-pill badge-primary">${group.tags}</span>
 		</div>
 		</div>
 		<br><br>
