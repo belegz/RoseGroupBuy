@@ -101,21 +101,25 @@ rhit.ListPageController = class {
 
 			newList.appendChild(newCard);
 		}
+		console.log(rhit.fbGroupsManager.length);
 
 		// Remove the old qLC
 		const oldList = document.querySelector("#groupListContainer");
+		// console.log(newList);
 		oldList.removeAttribute("id");
 		oldList.hidden = true;
 		// Put in the new qLC
+		// console.log(oldList.parentElement);
 		oldList.parentElement.appendChild(newList);
+		// console.log(oldList.parentElement);
 	}
 }
 
 rhit.Group = class {
-	constructor(id, name, seller, location, endTime, tags) {
+	constructor(id, name, owner,seller, location, endTime, tags) {
 		this.id = id;
 		this.name = name;
-		this.owner = null;
+		this.owner = owner;
 		this.seller = seller;
 		this.location = location;
 		this.endTime = endTime;
@@ -133,8 +137,6 @@ rhit.FbGroupsManager = class {
 		this._unsubscribe = null;
 	}
 	add(name, seller, location, endTime, tags) {
-		// console.log(`add Group ${Group}`);
-		// console.log(`add movie ${movie}`);
 		// Add a new document with a generated id.
 		this._ref.add({
 				[rhit.FB_KEY_GROUP_NAME]: name,
@@ -157,15 +159,15 @@ rhit.FbGroupsManager = class {
 
 	beginListening(changeListener) {
 		this._unsubscribe = this._ref
-			.orderBy(rhit.FB_KEY_GROUP_LAST_TOUCHED, "desc")
+			// .orderBy(rhit.FB_KEY_GROUP_LAST_TOUCHED, "desc")
 			.limit(50)
 			.onSnapshot((querySnapshot) => {
 				console.log("Group Update");
 				this._documentSnapshots = querySnapshot.docs;
-
-				// querySnapshot.forEach((doc)  => {
-				// 	console.log(doc.data());
-				// });
+				console.log('length :>> ', this._documentSnapshots.length);
+				querySnapshot.forEach((doc)  => {
+					console.log(doc.data());
+				});
 				if (changeListener) {
 					changeListener();
 				}
@@ -175,8 +177,7 @@ rhit.FbGroupsManager = class {
 	stopListening() {
 		this._unsubscribe();
 	}
-	// update(id, Group, movie) {}
-	// delete(id) {}
+
 	get length() {
 		return this._documentSnapshots.length;
 	}
@@ -185,6 +186,7 @@ rhit.FbGroupsManager = class {
 		const group = new rhit.Group(
 			docSnapshot.id,
 			docSnapshot.get(rhit.FB_KEY_GROUP_NAME),
+			docSnapshot.get(rhit.FB_KEY_GROUP_OWNER),
 			docSnapshot.get(rhit.FB_KEY_GROUP_SELLER),
 			docSnapshot.get(rhit.FB_KEY_GROUP_LOCATION),
 			docSnapshot.get(rhit.FB_KEY_GROUP_ENDTIME),
@@ -203,7 +205,7 @@ rhit.DetailPageController = class {
 			const endTime = document.querySelector("#inputTime").value;
 			const location = document.querySelector("#inputLocation").value;
 			const tags = document.querySelector("#inputTags").value;
-			rhit.fbSingleGroupManager.update(name, seller, location, endTime, "InProgress", null, tags);
+			rhit.fbSingleGroupManager.update(name, seller, location, endTime, "InProgress", ["Rose","Mickey","Jack"], tags);
 		});
 
 		$('#editGroupDialog').on('show.bs.modal', (event) => {
