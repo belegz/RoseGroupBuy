@@ -10,45 +10,61 @@
   <title>Rose GroupBuy</title>
 </head>
 
-
-
-
 <body>
-  <nav class="navbar navbar-dark fixed-top" id="navBarTop">
+  <!-- <nav class="navbar navbar-dark fixed-top" id="navBarTop">
     <button class="btn" type="button" ><i class="material-icons">menu</i></button> 
     <a class="navbar-brand" href="#" id = "navTop">Rose GroupBuy</a>
-  </nav>
+  </nav> -->
 
-  
-
-  <div id="listPage" class="container page-container">
-    <div class="sidebar">
-      <a href="#" id="test"> <i class="material-icons">home</i><span>Main Page</span></a>
-      <a href="#"> <i class="material-icons">double_arrow</i><span>In Progress Purchase</span></a>
+  <div class="bmd-layout-container bmd-drawer-f-l bmd-drawer-overlay">
+    <header class="bmd-layout-header">
+      <div class="navbar navbar-dark bg-faded fixed-top justify-content-start">
+        <button class="navbar-toggler" type="button" data-toggle="drawer" data-target="#dw-s2">
+          <span class="sr-only">Toggle drawer</span>
+          <i class="material-icons">menu</i>
+        </button>
+        <a class="navbar-brand" href="#">&nbsp;&nbsp;Rose GroupBuy</a>
+      </div>
+    </header>
+    <div id="dw-s2" class="bmd-layout-drawer bg-faded">
+      <header>
+        <a class="navbar-brand">Rose GroupBuy</a>
+      </header>
+      <ul class="list-group">
+        <a id="menuAllGroups" class="list-group-item"><i class="material-icons">groups</i>Rose Square</a>
+        <a id="menuMyProfile" class="list-group-item"><i class="material-icons">account_box</i>My Profile</a>
+        <a id="menuMyInProGroups" class="list-group-item"><i class="material-icons">shop</i>My InProg Groups</a>
+        <a id="menuMyFinGroups" class="list-group-item"><i class="material-icons">assignment_turned_in</i>My Finished Groups</a>
+        <a id="menuSignOut" class="list-group-item"><i class="material-icons">logout</i>Sign Out</a>
+      </ul>
     </div>
+    <main class="bmd-layout-content">
+      <div id="listPage" class="container page-container">
    
-    <div id="groupListContainer" class="row" style="justify-content: center; margin-left: 200px;">
-      <div class="col-sm-12 col-md-11">
-        <!-- <div class="card border-secondary">
-            <div class="card-header" id = "cardHeaderContianer">
-                <span id = "card-title">Black Friday Macy's</span><span class="badge badge-secondary" style="font-size: 1.25em;"><i class="material-icons">groups</i>&nbsp; +3</span>
-              </div>
-            <div class="card-body text-secondary">
-                <span id="cardOwner" class="h5">Tiantian Zhang</span>
-                <br><br>
-                <span id="cardTimeTag" > End Time:</span>
-                <span id="cardTime" class="font-italic"> 10/16/2020 12:17AM</span>
-                <br><br>
-                <span id="cardTime" class=""> Tags:</span>
-                <span class="badge badge-pill badge-primary">Primary</span>
+        <div id="groupListContainer" class="row" style="justify-content: center; margin-left: 200px;">
+          <div class="col-sm-12 col-md-11">
+            <!-- <div class="card border-secondary">
+                <div class="card-header" id = "cardHeaderContianer">
+                    <span id = "card-title">Black Friday Macy's</span><span class="badge badge-secondary" style="font-size: 1.25em;"><i class="material-icons">groups</i>&nbsp; +3</span>
+                  </div>
+                <div class="card-body text-secondary">
+                    <span id="cardOwner" class="h5">Tiantian Zhang</span>
+                    <br><br>
+                    <span id="cardTimeTag" > End Time:</span>
+                    <span id="cardTime" class="font-italic"> 10/16/2020 12:17AM</span>
+                    <br><br>
+                    <span id="cardTime" class=""> Tags:</span>
+                    <span class="badge badge-pill badge-primary">Primary</span>
+                </div>
+                
             </div>
-            
+            <br><br> -->
         </div>
-        <br><br> -->
-    </div>
-    </div>
-    
+        </div>       
+      </div>
+    </main>
   </div>
+
 
   <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#addGroupDialog">
     <i class="material-icons">add</i>

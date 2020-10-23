@@ -1,23 +1,24 @@
 body {
     background: #DDDDDD;
-    
+
 }
 
 .navbar {
     background-color: #800000;
     color: white;
-   /* justify-content: space-between; */
+    /* justify-content: space-between; */
 }
 
-.navbar i{
+.navbar i {
     margin-top: 8px;
 }
 
 .page-container {
     margin-top: 75px;
 }
-#navBarTop{
-    justify-content: left; 
+
+#navBarTop {
+    justify-content: left;
 }
 
 
@@ -31,11 +32,11 @@ body {
 }
 
 #fab:active {
-    transform: translateY(2px); 
+    transform: translateY(2px);
     opacity: 0.8;
 }
 
-#item-fab .material-icons{
+#item-fab .material-icons {
     color: #800000;
 }
 
@@ -55,7 +56,7 @@ body {
     left: -128px;
 }
 
-.dropdown-menu-right .material-icons{
+.dropdown-menu-right .material-icons {
     color: black;
 }
 
@@ -82,32 +83,32 @@ h3 {
     justify-content: space-between;
 }
 
-#navTop button{
+#navTop button {
     margin-top: 15px;
-    color:white;
+    color: white;
 }
 
-.material-icons{
+/* .material-icons {
     vertical-align: middle;
     margin-bottom: 5px;
-    color:white;
-}
+    color: white;
+} */
 
-.sidebar{
+/* .sidebar {
     background: #800000;
     margin-top: -20px;
     padding-top: 30px;
     position: fixed;
-    left:0;
-    width :200px;
+    left: 0;
+    width: 200px;
     height: 100%;
-    
+
     justify-content: left;
 
-}
+} */
 
-.sidebar a{
-    color:#fff;
+/* .sidebar a {
+    color: #fff;
     display: block;
     width: 100%;
     line-height: 60px;
@@ -119,52 +120,52 @@ h3 {
 
 }
 
-.sidebar > a:hover{
-    background-color:#19b3d3;
-}
+.sidebar>a:hover {
+    background-color: #19b3d3;
+} */
 
 
 /* Remove margins and padding from the list */
 ul {
     margin: 0;
     padding: 0;
-  }
-  
-  /* Style the list items */
-  ul li {
+}
+
+/* Style the list items */
+ul li {
     cursor: pointer;
     position: relative;
     padding: 12px 8px 12px 40px;
     background: #eee;
     font-size: 16px;
     transition: 0.2s;
-  
+
     /* make the list items unselectable */
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-  }
-  
-  /* Set all odd list items to a different color (zebra-stripes) */
-  ul li:nth-child(odd) {
+}
+
+/* Set all odd list items to a different color (zebra-stripes) */
+ul li:nth-child(odd) {
     background: #f9f9f9;
-  }
-  
-  /* Darker background-color on hover */
-  ul li:hover {
+}
+
+/* Darker background-color on hover */
+ul li:hover {
     background: #ddd;
-  }
-  
-  /* When clicked on, add a background color and strike out text */
-  ul li.checked {
+}
+
+/* When clicked on, add a background color and strike out text */
+ul li.checked {
     background: #888;
     color: #fff;
     text-decoration: line-through;
-  }
-  
-  /* Add a "checked" mark when clicked on */
-  ul li.checked::before {
+}
+
+/* Add a "checked" mark when clicked on */
+ul li.checked::before {
     content: '';
     position: absolute;
     border-color: #fff;
@@ -175,17 +176,44 @@ ul {
     transform: rotate(45deg);
     height: 15px;
     width: 7px;
-  }
-  
-  /* Style the close button */
-  .close {
+}
+
+/* Style the close button */
+.close {
     position: absolute;
     right: 0;
     top: 0;
     padding: 12px 16px 12px 16px;
-  }
-  
-  .close:hover {
+}
+
+.close:hover {
     background-color: #f44336;
     color: white;
-  }
+}
+
+#rosefireButton {
+    display: block;
+    margin: 60px auto;
+    color: white;
+    background: #800000;
+    font-size: 1.1em;
+    padding: 10px 30px;
+    border-radius: 5px;
+}
+
+.bmd-layout-content {
+    height: 100vh;
+}
+
+.bmd-layout-drawer > header{
+    background-color: #800000;
+    color: white;
+}
+
+.bmd-layout-drawer > ul{
+    background-color: #ddd;
+}
+
+.list-group-item :first-child {
+    margin-right: 0.75rem;
+}
