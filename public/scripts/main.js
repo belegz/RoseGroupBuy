@@ -12,6 +12,7 @@ rhit.FB_KEY_GROUP_TAGS = "Tags";
 rhit.FB_KEY_GROUP_MEMBERS = "Members";
 rhit.fbGroupsManager = null;
 rhit.fbSingleGroupManager = null;
+rhit.fbAuthManager = null;
 
 function htmlToElement(html) {
 	var template = document.createElement('template');
@@ -130,8 +131,9 @@ rhit.Group = class {
 }
 
 rhit.FbGroupsManager = class {
-	constructor() {
+	constructor(uid) {
 		// console.log("Created Group Manager");
+		this._uid = uid;
 		this._documentSnapshots = [];
 		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_GROUPS);
 		this._unsubscribe = null;
@@ -140,7 +142,7 @@ rhit.FbGroupsManager = class {
 		// Add a new document with a generated id.
 		this._ref.add({
 				[rhit.FB_KEY_GROUP_NAME]: name,
-				[rhit.FB_KEY_GROUP_OWNER]: null,
+				[rhit.FB_KEY_GROUP_OWNER]: rhit.fbAuthManager.uid,
 				[rhit.FB_KEY_GROUP_SELLER]: seller,
 				[rhit.FB_KEY_GROUP_LOCATION]: location,
 				[rhit.FB_KEY_GROUP_ENDTIME]: endTime,
@@ -332,25 +334,90 @@ rhit.FbSingleGroupManager = class {
 
 }
 
+rhit.LoginPageController = class {
+	constructor() {
+		// console.log("You have created the login page controller.");
+		document.querySelector("#rosefireButton").onclick = (event) => {
+			rhit.fbAuthManager.signIn();
+		}
+	}
+}
+
+rhit.FbAuthManager = class {
+	constructor() {
+		this._user = null;
+		console.log("You have made the Auth Manager");
+	}
+	beginListening(changeListener) {
+		firebase.auth().onAuthStateChanged((user) => {
+			this._user = user;
+			changeListener();
+		});
+	}
+	signIn() {
+		// console.log("TODO: Sign In");
+		Rosefire.signIn("5957e42e-e013-4f98-997f-1f181e75568b", (err, rfUser) => {
+			if (err) {
+				console.log("Rosefire error!", err);
+				return;
+			}
+			console.log("Rosefire success!", rfUser);
+
+			// DONE: Use the rfUser.token with your server.
+			firebase.auth().signInWithCustomToken(rfUser.token).catch((error) => {
+				const errorCode = error.code;
+				const errorMessage = error.message;
+				if(errorCode === 'auth/invalid-custom-token'){
+					alert('The token you provided is not valid.');
+				}else{
+					console.log("Custom Auth Error", errorCode, errorMessage);
+				}
+				
+			});
+		});
+
+	}
+	signOut() {
+		firebase.auth().signOut().catch(function (error) {
+			// An error happened.
+			console.log("Sign Out Error");
+		});
+	}
+
+	get isSignedIn() {
+		return !!this._user;
+	}
+
+	get uid() {
+		return this._user.uid;
+	}
+}
 
 
-/* Main */
-/** function and class syntax examples */
-rhit.main = function () {
-	console.log("Ready");
+rhit.checkForRedirects = function() {
+	if (document.querySelector("#loginPage") && rhit.fbAuthManager.isSignedIn) {
+		window.location.href = "/list.html";
+	}
+
+	if (!document.querySelector("#loginPage") && !rhit.fbAuthManager.isSignedIn) {
+		window.location.href = "/";
+	}
+};
+
+rhit.initializePage = function() {
+	const queryString = window.location.search;
+	const urlParams = new URLSearchParams(queryString);
 
 	if (document.querySelector("#listPage")) {
 		console.log("You are on list Page.");
+		const uid = urlParams.get("uid");
 		rhit.fbGroupsManager = new rhit.FbGroupsManager();
-		new rhit.ListPageController();
+		new rhit.ListPageController(uid);
 	}
 
 	if (document.querySelector("#groupdetailPage")) {
 		console.log("You are on detail Page.");
-
-		const queryString = window.location.search;
-		console.log(queryString);
-		const urlParams = new URLSearchParams(queryString);
+		// console.log(queryString);
 		const groupId = urlParams.get("id");
 
 		if (!groupId) {
@@ -361,7 +428,30 @@ rhit.main = function () {
 		new rhit.DetailPageController();
 	}
 
+	if (document.querySelector("#loginPage")) {
+		console.log("You are on login Page.");
+		new rhit.LoginPageController();
+	}
 
+};
+
+
+/* Main */
+/** function and class syntax examples */
+rhit.main = function () {
+	console.log("Ready");
+
+	rhit.fbAuthManager = new rhit.FbAuthManager();
+	rhit.fbAuthManager.beginListening(() => {
+		// console.log("auth change callback fired. TODO: check for redirects.");
+		console.log("isSignedIn = ", rhit.fbAuthManager.isSignedIn);
+
+		// Check for redirects
+		rhit.checkForRedirects();
+
+		// Page initialization
+		rhit.initializePage();
+	});
 };
 
 rhit.main();
