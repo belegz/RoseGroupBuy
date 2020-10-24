@@ -10,9 +10,32 @@ rhit.FB_KEY_GROUP_LOCATION = "Location";
 rhit.FB_KEY_GROUP_STATUS = "Status";
 rhit.FB_KEY_GROUP_TAGS = "Tags";
 rhit.FB_KEY_GROUP_MEMBERS = "Members";
+rhit.FB_KEY_GROUP_OWNERNAME = "OwnerName"
+
+rhit.FB_COLLECTION_USERS = "Users";
+rhit.FB_KEY_USERS_NAME = "Name";
+rhit.FB_KEY_USERS_EMAIL = "Email";
+rhit.FB_KEY_USERS_GROUPCOUNT = "GroundCount";
+rhit.FB_KEY_USERS_USERNAME = "userName";
+rhit.FB_KEY_USERS_RATE = "Rate";
+rhit.FB_KEY_USERS_PHONENUMBER= "PhoneNumber";
+
+
 rhit.fbGroupsManager = null;
 rhit.fbSingleGroupManager = null;
 rhit.fbAuthManager = null;
+rhit.fbUser = null;
+
+rhit.User = class{
+	constructor(name, userName, Email){
+		this.name = name;
+		this.username = userName;
+		this.email = Email;
+		this.groupCunt = 0;
+		this.phoneNumber = "000-000-0000";
+		this.rate = 0;
+	}
+}
 
 function htmlToElement(html) {
 	var template = document.createElement('template');
@@ -63,13 +86,44 @@ rhit.ListPageController = class {
 		//   		<h6 class="card-subtitle mb-2 text-muted">${movieGroup.movie}</h6>
 		// 	</div>
 		//   </div>
+
+		let owner = null;
+		firebase.firestore().collection(rhit.FB_COLLECTION_USERS)
+			.where("userName", "==", group.owner)
+			.onSnapshot((querySnapshot) => {
+				console.log("fetch group owner name");
+				this._documentSnapshots = querySnapshot.docs;
+				console.log('length :>> ', this._documentSnapshots.length);
+				querySnapshot.forEach((doc)  => {
+					console.log(doc.id, " => ", doc.get(rhit.FB_KEY_USERS_NAME));
+					owner = doc.get(rhit.FB_KEY_USERS_NAME);
+					// return;
+				});
+				// if (changeListener) {
+				// 	changeListener();
+				// }
+
+			});
+
+			// .get()
+			// .then(function(querySnapshot) {
+			// 	querySnapshot.forEach(function(doc) {
+			// 		// doc.data() is never undefined for query doc snapshots
+			// 		console.log(doc.id, " => ", doc.get(rhit.FB_KEY_USERS_NAME));
+			// 		owner = doc.get(rhit.FB_KEY_USERS_NAME)
+			// 	});
+			// })
+			// .catch(function(error) {
+			// 	console.log("Error getting documents: ", error);
+			// });
+			console.log('owner :>> ', owner);
 		return htmlToElement(`
 		<div class="card border-secondary">
 		<div class="card-header" id = "cardHeaderContianer">
 			<span id = "card-title">${group.name}</span><span class="badge badge-secondary" style="font-size: 1.25em;"><i class="material-icons">groups</i>&nbsp; +3</span>
 		  </div>
 		<div class="card-body text-secondary">
-			<span id="cardOwner" class="h5">${group.owner}</span>
+			<span id="cardOwner" class="h5">${group.ownerName}</span>
 			<br><br>
 			<span id="cardTimeTag" > End Time:</span>
 			<span id="cardTime" class="font-italic"> ${group.endTime}</span>
@@ -117,10 +171,11 @@ rhit.ListPageController = class {
 }
 
 rhit.Group = class {
-	constructor(id, name, owner,seller, location, endTime, tags) {
+	constructor(id, name, owner,ownerName,seller, location, endTime, tags) {
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
+		this.ownerName = ownerName;
 		this.seller = seller;
 		this.location = location;
 		this.endTime = endTime;
@@ -143,6 +198,7 @@ rhit.FbGroupsManager = class {
 		this._ref.add({
 				[rhit.FB_KEY_GROUP_NAME]: name,
 				[rhit.FB_KEY_GROUP_OWNER]: rhit.fbAuthManager.uid,
+				[rhit.FB_KEY_GROUP_OWNERNAME]:rhit.User.name,
 				[rhit.FB_KEY_GROUP_SELLER]: seller,
 				[rhit.FB_KEY_GROUP_LOCATION]: location,
 				[rhit.FB_KEY_GROUP_ENDTIME]: endTime,
@@ -185,13 +241,15 @@ rhit.FbGroupsManager = class {
 	}
 	getGroupAtIndex(index) {
 		const docSnapshot = this._documentSnapshots[index];
+		console.log(docSnapshot.get(rhit.FB_KEY_GROUP_ENDTIME),);
 		const group = new rhit.Group(
 			docSnapshot.id,
 			docSnapshot.get(rhit.FB_KEY_GROUP_NAME),
 			docSnapshot.get(rhit.FB_KEY_GROUP_OWNER),
+			docSnapshot.get(rhit.FB_KEY_GROUP_OWNERNAME),
 			docSnapshot.get(rhit.FB_KEY_GROUP_SELLER),
 			docSnapshot.get(rhit.FB_KEY_GROUP_LOCATION),
-			docSnapshot.get(rhit.FB_KEY_GROUP_ENDTIME),
+			docSnapshot.get(rhit.FB_KEY_GROUP_ENDTIME).toDate(),
 			docSnapshot.get(rhit.FB_KEY_GROUP_TAGS),
 		);
 		return group;
@@ -313,7 +371,7 @@ rhit.FbSingleGroupManager = class {
 	}
 
 	get endTime() {
-		return this._documentSnapshot.get(rhit.FB_KEY_GROUP_ENDTIME);
+		return this._documentSnapshot.get(rhit.FB_KEY_GROUP_ENDTIME).toDate();
 	}
 
 	get location() {
@@ -343,10 +401,14 @@ rhit.LoginPageController = class {
 	}
 }
 
+
+
 rhit.FbAuthManager = class {
 	constructor() {
 		this._user = null;
 		console.log("You have made the Auth Manager");
+		// this._ref  = firebase.firestore().collection(rhit.FB_COLLECTION_USERS);
+		// this._unsubscribe = null;
 	}
 	beginListening(changeListener) {
 		firebase.auth().onAuthStateChanged((user) => {
@@ -356,12 +418,20 @@ rhit.FbAuthManager = class {
 	}
 	signIn() {
 		// console.log("TODO: Sign In");
+		const currRef = firebase.firestore().collection(rhit.FB_COLLECTION_USERS);
+		let subscribe = null;
 		Rosefire.signIn("5957e42e-e013-4f98-997f-1f181e75568b", (err, rfUser) => {
 			if (err) {
 				console.log("Rosefire error!", err);
 				return;
 			}
 			console.log("Rosefire success!", rfUser);
+			// user = rfUser;
+
+			
+		
+		//check user exists in our db
+		
 
 			// DONE: Use the rfUser.token with your server.
 			firebase.auth().signInWithCustomToken(rfUser.token).catch((error) => {
@@ -372,16 +442,122 @@ rhit.FbAuthManager = class {
 				}else{
 					console.log("Custom Auth Error", errorCode, errorMessage);
 				}
+			
 				
 			});
-		});
+			
+			
+			currRef.where("userName", "==", rfUser.username)
+			.get()
+			.then(function(querySnapshot) {		
+				console.log(querySnapshot.docs.length);
+				if(querySnapshot.docs.length==0){
+					console.log("adding user");
+					rhit.fbUser = new rhit.User(rfUser.name,rfUser.username,rfUser.email);
+					currRef.add({
+						[rhit.FB_KEY_USERS_NAME]:rfUser.name,
+						[rhit.FB_KEY_USERS_USERNAME]:rfUser.username,
+						[rhit.FB_KEY_USERS_EMAIL]: rfUser.email,
+						[rhit.FB_KEY_USERS_GROUPCOUNT]:0,
+						[rhit.FB_KEY_USERS_PHONENUMBER]:"000-000-0000",
+						[rhit.FB_KEY_USERS_RATE]:0,
 
+					})
+					.then(function (docRef) {
+						console.log("Document written with ID: ", docRef.id);
+					})
+					.catch(function (error) {
+						console.error("Error adding document: ", error);
+					});
+				}
+				
+			})
+			.catch(function(error) {
+				console.log("Error getting documents: ", error);
+			});
+
+			
+			 
+			// console.log("there is no data");
+			
+			//  subscribe = currRef.where("userName", "==", rfUser.username)
+			//  .get()
+			// // .orderBy(rhit.FB_KEY_GROUP_LAST_TOUCHED, "desc")
+			// .limit(50)
+			// .onSnapshot((querySnapshot) => {
+			// 	console.log("User Update");
+			// 	console.log("auth sign in is", rhit.fbAuthManager.isSignedIn);
+			// 	console.log("auth current is ", rhit.fbAuthManager._user);
+			// 	this._documentSnapshots = querySnapshot.docs;
+			// 	console.log('length :>> ', this._documentSnapshots.length);
+				
+			// 	//check if there is no this user and right now the user is not using this web
+			// 	if(this._documentSnapshots.length == 0 ){
+			// 		console.log("this user is", rfUser.name);
+			// 		// this.add(rfUser.name, rfUser.username,rfUser.email);
+					
+			// currRef.add({
+			// 			[rhit.FB_KEY_USERS_NAME]:rfUser.name,
+			// 			[rhit.FB_KEY_USERS_USERNAME]:rfUser.username,
+			// 			[rhit.FB_KEY_USERS_EMAIL]: rfUser.email,
+			// 			[rhit.FB_KEY_USERS_GROUPCOUNT]:0,
+			// 			[rhit.FB_KEY_USERS_PHONENUMBER]:"000-000-0000",
+			// 			[rhit.FB_KEY_USERS_RATE]:0,
+
+			// 		})
+			// 		.then(function (docRef) {
+			// 			console.log("Document written with ID: ", docRef.id);
+			// 		})
+			// 		.catch(function (error) {
+			// 			console.error("Error adding document: ", error);
+			// 		});
+					// console.log("there is no data");
+			// 	}
+
+
+			// });
+			
+			// subscribe();
+
+		});
+		// subscribe();
+
+	
 	}
+
+
+
 	signOut() {
+		// this._user = null;
 		firebase.auth().signOut().catch(function (error) {
 			// An error happened.
 			console.log("Sign Out Error");
 		});
+	}
+
+
+	add(name, username, email) {
+		// Add a new document with a generated id.
+		this._ref.add({
+				[rhit.FB_KEY_USERS_NAME]: name,
+				[rhit.FB_KEY_USERS_USERNAME]:username,
+				[rhit.FB_KEY_USERS_EMAIL]: email,
+				[rhit.FB_KEY_USERS_GROUPCOUNT]:0,
+				[rhit.FB_KEY_USERS_PHONENUMBER]:"000-000-0000",
+				[rhit.FB_KEY_USERS_RATE]:0,
+
+
+			})
+			.then(function (docRef) {
+				console.log("Document written with ID: ", docRef.id);
+			})
+			.catch(function (error) {
+				console.error("Error adding document: ", error);
+			});
+			// this.stopListening();
+	}
+	stopListening() {
+		this._unsubscribe();
 	}
 
 	get isSignedIn() {
@@ -409,6 +585,7 @@ rhit.initializePage = function() {
 	const urlParams = new URLSearchParams(queryString);
 
 	if (document.querySelector("#listPage")) {
+		console.log(this.fbAuthManager._user);
 		console.log("You are on list Page.");
 		const uid = urlParams.get("uid");
 		rhit.fbGroupsManager = new rhit.FbGroupsManager();
