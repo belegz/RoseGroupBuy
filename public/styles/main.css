@@ -217,6 +217,15 @@ ul li.checked::before {
 .list-group-item :first-child {
     margin-right: 0.75rem;
 }
+#collapseTwo li{
+    justify-content: space-between;
+}
+
+#totalAmount{
+    justify-content: end;
+    color:#800000;
+    font-weight: bolder;
+}
 
 #roseLogo{
     max-width: 350px;
