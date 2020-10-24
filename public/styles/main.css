@@ -217,3 +217,10 @@ ul li.checked::before {
 .list-group-item :first-child {
     margin-right: 0.75rem;
 }
+
+#roseLogo{
+    max-width: 350px;
+    margin: auto;
+    display: block;
+
+}
