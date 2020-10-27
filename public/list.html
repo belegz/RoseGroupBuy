@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
   <link rel="stylesheet" href="styles/bootstrap-material-design.min.css">
   <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/jquery.datetimepicker.min.css">
   <title>Rose GroupBuy</title>
 </head>
 
@@ -92,7 +93,7 @@
           </div>
           <div class="form-group bmd-form-group">
             <label for="formGroupExampleInput2" class="bmd-label-floating">End Time</label>
-            <input type="text" class="form-control" id="inputTime">
+            <input class="form-control" id="inputTime">
             <span class="bmd-help">When will this group ends?</span>
           </div>
           <div class="form-group bmd-form-group">
@@ -130,7 +131,12 @@
   <script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
   <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
   <script src="/__/firebase/init.js"></script>
+  <script src="scripts/jquery.datetimepicker.full.js"></script>
   <script src="scripts/main.js"></script>
+  <script>
+    // console.log("find datepicker");
+    $("#inputTime").datetimepicker();
+  </script>
 </body>
 
 </html>
