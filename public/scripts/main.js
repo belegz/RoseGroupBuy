@@ -63,11 +63,19 @@ rhit.ListPageController = class {
 			rhit.fbAuthManager.signOut();
 		});
 
+		document.querySelector("#cancelAddGroup").addEventListener("click", (event) => {
+			// console.log("submit");
+			console.log("cancel, try to print date");
+			var d = $('#inputTime').datetimepicker('getValue');
+    		console.log(firebase.firestore.Timestamp.fromDate(d));
+		});
+
 		document.querySelector("#submitAddGroup").addEventListener("click", (event) => {
 			// console.log("submit");
 			const name = document.querySelector("#inputName").value;
 			const seller = document.querySelector("#inputSeller").value;
-			const endTime = document.querySelector("#inputTime").value;
+			var d = $('#inputTime').datetimepicker('getValue');
+			const endTime = firebase.firestore.Timestamp.fromDate(d);
 			const location = document.querySelector("#inputLocation").value;
 			const tags = document.querySelector("#inputTags").value;
 			// console.log(Group);
@@ -213,14 +221,14 @@ rhit.FbGroupsManager = class {
 		this._ref.add({
 				[rhit.FB_KEY_GROUP_NAME]: name,
 				[rhit.FB_KEY_GROUP_OWNER]: rhit.fbAuthManager.uid,
-				[rhit.FB_KEY_GROUP_OWNERNAME]: rhit.User.name,
+				[rhit.FB_KEY_GROUP_OWNERNAME]: rhit.fbUser.name,
 				[rhit.FB_KEY_GROUP_SELLER]: seller,
 				[rhit.FB_KEY_GROUP_LOCATION]: location,
 				[rhit.FB_KEY_GROUP_ENDTIME]: endTime,
 				[rhit.FB_KEY_GROUP_STATUS]: "InProgress",
 				[rhit.FB_KEY_GROUP_MEMBERS]: null,
 				[rhit.FB_KEY_GROUP_TAGS]: tags,
-				[rhit.FB_KEY_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
+				[rhit.FB_KEY_GROUP_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
 			})
 			.then(function (docRef) {
 				console.log("Document written with ID: ", docRef.id);
@@ -232,7 +240,7 @@ rhit.FbGroupsManager = class {
 
 	beginListening(changeListener) {
 		this._unsubscribe = this._ref
-			// .orderBy(rhit.FB_KEY_GROUP_LAST_TOUCHED, "desc")
+			.orderBy(rhit.FB_KEY_GROUP_LAST_TOUCHED, "desc")
 			.limit(50)
 			.onSnapshot((querySnapshot) => {
 				console.log("Group Update");
@@ -277,7 +285,9 @@ rhit.DetailPageController = class {
 		document.querySelector("#submitEditGroup").addEventListener("click", (event) => {
 			const name = document.querySelector("#inputName").value;
 			const seller = document.querySelector("#inputSeller").value;
-			const endTime = document.querySelector("#inputTime").value;
+			// const endTime = document.querySelector("#inputTime").value;
+			var d = $('#inputTime').datetimepicker('getValue');
+			const endTime = firebase.firestore.Timestamp.fromDate(d);
 			const location = document.querySelector("#inputLocation").value;
 			const tags = document.querySelector("#inputTags").value;
 			rhit.fbSingleGroupManager.update(name, seller, location, endTime, "InProgress", ["Rose", "Mickey", "Jack"], tags);
@@ -423,11 +433,38 @@ rhit.FbAuthManager = class {
 		this._user = null;
 		console.log("You have made the Auth Manager");
 		// this._ref  = firebase.firestore().collection(rhit.FB_COLLECTION_USERS);
+
 		// this._unsubscribe = null;
 	}
 	beginListening(changeListener) {
 		firebase.auth().onAuthStateChanged((user) => {
 			this._user = user;
+
+			let owner = null;
+			firebase.firestore().collection(rhit.FB_COLLECTION_USERS)
+			.where("userName", "==", this._user.uid)
+			.onSnapshot((querySnapshot) => {
+				console.log("fetch group owner name");
+				this._documentSnapshots = querySnapshot.docs;
+				console.log('length :>> ', this._documentSnapshots.length);
+				querySnapshot.forEach((doc) => {
+					console.log(doc.id, " => ", doc.get(rhit.FB_KEY_USERS_NAME));
+					let name  =doc.get(rhit.FB_KEY_USERS_NAME);
+					let username = doc.get(rhit.FB_KEY_USERS_USERNAME);
+					let email = doc.get(rhit.FB_KEY_USERS_EMAIL);
+					console.log('email :>> ', email);
+					rhit.fbUser = new rhit.User(name, username, email);
+					// return;
+				});
+				// if (changeListener) {
+				// 	changeListener();
+				// }
+
+			});
+
+
+
+
 			changeListener();
 		});
 	}
@@ -632,10 +669,19 @@ rhit.initializePage = function () {
 	const queryString = window.location.search;
 	const urlParams = new URLSearchParams(queryString);
 
+	
+
+
 	if (document.querySelector("#listPage")) {
 		console.log(this.fbAuthManager._user);
 		console.log("You are on list Page.");
 		const uid = urlParams.get("uid");
+		
+	$("#inputTime").datetimepicker({
+		startDate: new Date(),
+		
+	  }
+	  );
 		rhit.fbGroupsManager = new rhit.FbGroupsManager();
 		new rhit.ListPageController(uid);
 	}
@@ -643,6 +689,12 @@ rhit.initializePage = function () {
 	if (document.querySelector("#groupdetailPage")) {
 		console.log("You are on detail Page.");
 		// console.log(queryString);
+		
+		$("#inputTime").datetimepicker({
+			startDate: new Date(),
+			
+		}
+		);
 		const groupId = urlParams.get("id");
 
 		if (!groupId) {
