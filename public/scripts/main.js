@@ -643,10 +643,10 @@ rhit.PersonalPageController = class {
 }
 
 rhit.FbPersonalManager = class {
-	constructor() {
+	constructor(uid) {
 		console.log("created personal manager");
-		this._user = null;
-		console.log("You have made the personal Manager");
+		this._user = uid;
+		console.log("You have made the personal Manager for user",this._user);
 	}
 
 	changeRate(newRate){};
@@ -707,6 +707,8 @@ rhit.initializePage = function () {
 
 	if (document.querySelector("#personalPage")) {
 		console.log("You are on personal Page.");
+		const uid = urlParams.get("uid");
+		rhit.fbPersonalManager = new rhit.FbPersonalManager(uid);
 		new rhit.PersonalPageController();
 	}
 
