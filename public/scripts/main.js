@@ -440,29 +440,29 @@ rhit.FbAuthManager = class {
 		firebase.auth().onAuthStateChanged((user) => {
 			this._user = user;
 
-			let owner = null;
-			firebase.firestore().collection(rhit.FB_COLLECTION_USERS)
-			.where("userName", "==", this._user.uid)
-			.onSnapshot((querySnapshot) => {
-				console.log("fetch group owner name");
-				this._documentSnapshots = querySnapshot.docs;
-				console.log('length :>> ', this._documentSnapshots.length);
-				querySnapshot.forEach((doc) => {
-					console.log(doc.id, " => ", doc.get(rhit.FB_KEY_USERS_NAME));
-					let name  =doc.get(rhit.FB_KEY_USERS_NAME);
-					let username = doc.get(rhit.FB_KEY_USERS_USERNAME);
-					let email = doc.get(rhit.FB_KEY_USERS_EMAIL);
-					console.log('email :>> ', email);
-					rhit.fbUser = new rhit.User(name, username, email);
-					// return;
+			if(this._user){
+				let owner = null;
+				firebase.firestore().collection(rhit.FB_COLLECTION_USERS)
+				.where("userName", "==", this._user.uid)
+				.onSnapshot((querySnapshot) => {
+					console.log("fetch group owner name");
+					this._documentSnapshots = querySnapshot.docs;
+					console.log('length :>> ', this._documentSnapshots.length);
+					querySnapshot.forEach((doc) => {
+						console.log(doc.id, " => ", doc.get(rhit.FB_KEY_USERS_NAME));
+						let name  =doc.get(rhit.FB_KEY_USERS_NAME);
+						let username = doc.get(rhit.FB_KEY_USERS_USERNAME);
+						let email = doc.get(rhit.FB_KEY_USERS_EMAIL);
+						console.log('email :>> ', email);
+						rhit.fbUser = new rhit.User(name, username, email);
+						// return;
+					});
+					// if (changeListener) {
+					// 	changeListener();
+					// }
+	
 				});
-				// if (changeListener) {
-				// 	changeListener();
-				// }
-
-			});
-
-
+			}
 
 
 			changeListener();
