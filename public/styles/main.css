@@ -271,3 +271,10 @@ a:hover {
     color: #f39c12;
     text-decoration: none; 
 }
+
+#menuEdit,
+#menuDelete,
+#menuJoin,
+#menuDrop {
+    display: none;
+}

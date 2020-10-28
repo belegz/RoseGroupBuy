@@ -20,12 +20,18 @@ rhit.FB_KEY_USERS_USERNAME = "userName";
 rhit.FB_KEY_USERS_RATE = "Rate";
 rhit.FB_KEY_USERS_PHONENUMBER = "PhoneNumber";
 
+rhit.FB_COLLECTION_ITEMS = "ShoppingItems";
+rhit.FB_KEY_ITEMS_PRICE = "Price";
+rhit.FB_KEY_ITEMS_LINK = "Link";
+
+
 
 rhit.fbGroupsManager = null;
 rhit.fbSingleGroupManager = null;
 rhit.fbAuthManager = null;
 rhit.fbPersonalManager = null;
 rhit.fbUser = null;
+rhit.FbMemberItemManager = null;
 
 rhit.User = class {
 	constructor(name, userName, Email) {
@@ -240,7 +246,7 @@ rhit.FbGroupsManager = class {
 
 	beginListening(changeListener) {
 		this._unsubscribe = this._ref
-			.orderBy(rhit.FB_KEY_GROUP_LAST_TOUCHED, "desc")
+			.orderBy(rhit.FB_KEY_GROUP_ENDTIME, "desc")
 			.limit(50)
 			.onSnapshot((querySnapshot) => {
 				console.log("Group Update");
@@ -307,7 +313,22 @@ rhit.DetailPageController = class {
 			// post-animation
 			document.querySelector("#inputName").focus();
 		});
+		
+		document.querySelector("#submitJoinGroup").addEventListener("click", (event) => {
+			const memberId = rhit.fbAuthManager.uid;
+			rhit.fbSingleGroupManager.members.push(memberId);
+		}).catch(function (error) {
+			console.error("Error joining group: ", error);
+		});
 
+		document.querySelector("#submitDropGroup").addEventListener("click", (event) => {
+			const memberId = rhit.fbAuthManager.uid;
+			const members = rhit.fbSingleGroupManager.members;
+			
+			// fruits.splice(0, 1); 
+		}).catch(function (error) {
+			console.error("Error dropping group: ", error);
+		});
 
 		document.querySelector("#submitDeleteGroup").addEventListener("click", (event) => {
 			rhit.fbSingleGroupManager.delete().then(function () {
@@ -320,6 +341,47 @@ rhit.DetailPageController = class {
 
 		// console.log("Made the detail page controller");
 		rhit.fbSingleGroupManager.beginListening(this.updateView.bind(this));
+		// rhit.FbMemberItemManager.beginListening(updateView.bind(this));
+	}
+
+	_createItemCard(groupId, member){
+		
+
+		let listItem = "";
+
+		return listItem;
+	}
+
+	_createMemberCard(member){
+		return htmlToElement(`<div class="card-body">
+		<div class="card">
+		  <div class="card-header" id="headingTwo">
+			<h5 class="mb-0">
+			  <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false"
+				aria-controls="collapseTwo">
+				${member}
+			  </button>
+			</h5>
+		  </div>
+
+		  <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#collapseOne">
+			<div class="card-body">
+			  <p class="card-text">
+				<ul class="list-group list-group-flush">
+				  <li class="list-group-item"><span>Nike Shoes</span> <span>$50</span></li>
+				  <li class="list-group-item"><span>Hat</span> <span>$20</span></li>
+				  <li class="list-group-item"><span>A Bag</span> <span>$30</span></li>
+				  <li class="list-group-item" id="totalAmount"> <span></span><span>$100</span></li>
+				</ul>
+				<!-- <div class="row">
+				  <div class = "col">Nike shoes</div>
+				  <div class = "col">$50</div>
+				</div> -->
+			  </p>
+			</div>
+		  </div>
+		</div>
+	  </div>`);
 	}
 
 	updateView() {
@@ -331,6 +393,105 @@ rhit.DetailPageController = class {
 		document.querySelector("#cardEndTime").innerHTML = rhit.fbSingleGroupManager.endTime;
 		document.querySelector("#cardLocation").innerHTML = rhit.fbSingleGroupManager.location;
 		document.querySelector("#cardTags").innerHTML = rhit.fbSingleGroupManager.tags;
+
+		if(rhit.fbSingleGroupManager.owner == rhit.fbAuthManager.uid){
+			document.querySelector("#menuEdit").style.display = "flex";
+			document.querySelector("#menuDelete").style.display = "flex";
+		}else if(rhit.fbSingleGroupManager.members.includes(rhit.fbAuthManager.uid)){
+			document.querySelector("#menuDrop").style.display = "flex";
+		}else{
+			document.querySelector("#menuJoin").style.display = "flex";
+		}
+
+		console.log("member is ",rhit.fbSingleGroupManager.members);
+		// Make a new GroupListContainer
+		const newList = htmlToElement('<div id = "memberList"></div>');
+		// Fill it with Group cards using a loop
+		for (let i = 0; i < rhit.fbSingleGroupManager.members.length; i++) {
+			// const group = rhit.fbGroupsManager.getGroupAtIndex(i);
+			const name = rhit.fbSingleGroupManager.members[i];
+			const itemManager = new rhit.FbMemberItemManager(rhit.fbSingleGroupManager.id,name);
+			const items = itemManager.items;
+			let itemsString="";
+			let totalAmount = 0;
+			for(let j = 0 ; j< items.length;j++){
+				itemsString += '<li class="list-group-item"><span>A Bag</span> <span></span></li>';
+			}
+			const newCard = this._createMemberCard(name);
+
+			// newCard.onclick = (event) => {
+			// 	// console.log(`You clicked on ${mq.id}`);
+			// 	// rhit.storage.setMovieGroupId(mq.id);
+			// 	window.location.href = `/groupdetail.html?id=${group.id}`;
+			// };
+
+			newList.appendChild(newCard);
+		}
+		// console.log(rhit.fbGroupsManager.length);
+
+		// Remove the old qLC
+		const oldList = document.querySelector("#memberList");
+		// console.log(newList);
+		oldList.removeAttribute("id");
+		oldList.hidden = true;
+		// Put in the new qLC
+		// console.log(oldList.parentElement);
+		oldList.parentElement.appendChild(newList);
+		// console.log(oldList.parentElement);
+		
+
+		
+
+	}
+}
+
+rhit.Items = class{
+	constructor( price, link){
+		// this.groupId = groupId;
+		// this.owner = owener;
+		this.link = link;
+		this.price = price;
+
+	}
+}
+
+rhit.FbMemberItemManager = class {
+	constructor(groupId, member){
+		this.groupId = groupId;
+		this.member  = member;
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_ITEMS);
+		this._unsubscribe = null;
+		rhit.fbSingleGroupManager.members
+		this.items = [];
+
+	}
+
+	beginListening(changeListener){
+		this.items = [];
+		this._unsubscribe = firestore().collection(rhit.FB_COLLECTION_ITEMS)		
+			.where("OwnerID", "==", this.member)
+			.where("GroupID","==", this.groupId)
+			.onSnapshot((querySnapshot) => {
+				console.log("fetch item owner name");
+				this._documentSnapshots = querySnapshot.docs;
+				console.log('length :>> ', this._documentSnapshots.length);
+				querySnapshot.forEach((doc) => {
+					console.log(doc.id, " => ", doc.get("Name"));
+					let price = doc.get(rhit.FB_KEY_ITEMS_PRICE);
+					console.log(doc.id, " => ", price);
+					
+					this.items.push(new rhit.Items(price, doc.get(rhit.FB_KEY_ITEMS_LINK)))
+					
+				});
+				if (changeListener) {
+					changeListener();
+				}
+
+			});
+	}
+
+	stopListening(){
+		this._unsubscribe();
 	}
 }
 
@@ -354,6 +515,7 @@ rhit.FbSingleGroupManager = class {
 				// window.location.href = "/";
 			}
 		});
+
 	}
 
 	stopListening() {
@@ -381,6 +543,10 @@ rhit.FbSingleGroupManager = class {
 
 	delete() {
 		return this._ref.delete();
+	}
+
+	get id(){
+		return this._documentSnapshot.id;
 	}
 
 	get name() {
