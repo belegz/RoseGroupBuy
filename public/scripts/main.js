@@ -616,6 +616,10 @@ rhit.FbAuthManager = class {
 		return !!this._user;
 	}
 
+	get user(){
+		return this._user;
+	}
+
 	get uid() {
 		return this._user.uid;
 	}
@@ -637,16 +641,21 @@ rhit.PersonalPageController = class {
 		document.querySelector("#menuSignOut").addEventListener("click", (event) => {
 			rhit.fbAuthManager.signOut();
 		});
+
+		this.updateRate();
 	}
 
-	updateRate(){};
+	updateRate(){
+		// document.querySelector("#userName").innerHTML = rhit.fbAuthManager.displayName;
+		// document.querySelector("#userEmail").innerHTML = rhit.fbAuthManager.email;
+	};
 }
 
 rhit.FbPersonalManager = class {
-	constructor(uid) {
+	constructor(user) {
 		console.log("created personal manager");
-		this._user = uid;
-		console.log("You have made the personal Manager for user",this._user);
+		this._user = user;
+		console.log("You have made the personal Manager for user",this._user.uid);
 	}
 
 	changeRate(newRate){};
@@ -707,8 +716,8 @@ rhit.initializePage = function () {
 
 	if (document.querySelector("#personalPage")) {
 		console.log("You are on personal Page.");
-		const uid = urlParams.get("uid");
-		rhit.fbPersonalManager = new rhit.FbPersonalManager(uid);
+		const user = rhit.fbAuthManager.user;
+		rhit.fbPersonalManager = new rhit.FbPersonalManager(user);
 		new rhit.PersonalPageController();
 	}
 
