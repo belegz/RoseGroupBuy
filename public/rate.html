@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+  <link rel="stylesheet" href="styles/bootstrap-material-design.min.css">
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/jquery.datetimepicker.min.css">
+  <title>Rate My Members</title>
+</head>
+
+<body>
+
+  <div class="bmd-layout-container bmd-drawer-f-l bmd-drawer-overlay">
+    <header class="bmd-layout-header">
+      <div class="navbar navbar-dark bg-faded fixed-top justify-content-start">
+        <button class="navbar-toggler" type="button" data-toggle="drawer" data-target="#dw-s2">
+          <span class="sr-only">Toggle drawer</span>
+          <i class="material-icons">menu</i>
+        </button>
+        <a class="navbar-brand" href="#">&nbsp;&nbsp;Rate My Members</a>
+      </div>
+    </header>
+    <div id="dw-s2" class="bmd-layout-drawer bg-faded">
+      <header>
+        <a class="navbar-brand">Rate My Members</a>
+      </header>
+      <ul class="list-group">
+        <a id="menuAllGroups" class="list-group-item"><i class="material-icons">groups</i>Rose Square</a>
+        <a id="menuMyProfile" class="list-group-item"><i class="material-icons">account_box</i>My Profile</a>
+        <a id="menuMyInProGroups" class="list-group-item"><i class="material-icons">shop</i>My InProg Groups</a>
+        <a id="menuMyFinGroups" class="list-group-item"><i class="material-icons">assignment_turned_in</i>My Finished Groups</a>
+        <a id="menuSignOut" class="list-group-item"><i class="material-icons">logout</i>Sign Out</a>
+      </ul>
+    </div>
+    <main class="bmd-layout-content">
+      <div id="ratePage" class="container page-container">
+   
+        <div id="rateListContainer" class="row" style="justify-content: center; margin-left: 200px;">
+          <div class="col-sm-12 col-md-11">
+            <!-- <div class="card border-secondary">
+                <div class="card-header" id = "cardHeaderContianer">
+                    <span id = "card-title">Black Friday Macy's</span><span class="badge badge-secondary" style="font-size: 1.25em;"><i class="material-icons">groups</i>&nbsp; +3</span>
+                  </div>
+                <div class="card-body text-secondary">
+                    <span id="cardOwner" class="h5">Tiantian Zhang</span>
+                    <br><br>
+                    <span id="cardTimeTag" > End Time:</span>
+                    <span id="cardTime" class="font-italic"> 10/16/2020 12:17AM</span>
+                    <br><br>
+                    <span id="cardTime" class=""> Tags:</span>
+                    <span class="badge badge-pill badge-primary">Primary</span>
+                </div>
+                
+            </div>
+            <br><br> -->
+        </div>
+        </div>       
+      </div>
+    </main>
+  </div>
+
+
+  <button id="fab" type="button" class="btn bmd-btn-fab" data-toggle="modal" data-target="#ratePersonDialog">
+    <i class="material-icons">add</i>
+  </button>
+
+  <!-- Modal -->
+  <div class="modal fade" id="ratePersonDialog" tabindex="-1" role="dialog" aria-labelledby="Rate Person dialog"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Rate This Person</h5>
+        </div>
+        <div class="modal-body">
+          
+          
+          <div class="rate">
+            <h6>John Doe</h6>
+            <input type="radio" id="star5" name="rate" value="5" />
+            <label for="star5" title="text">5 stars</label>
+            <input type="radio" id="star4" name="rate" value="4" />
+            <label for="star4" title="text">4 stars</label>
+            <input type="radio" id="star3" name="rate" value="3" />
+            <label for="star3" title="text">3 stars</label>
+            <input type="radio" id="star2" name="rate" value="2" />
+            <label for="star2" title="text">2 stars</label>
+            <input type="radio" id="star1" name="rate" value="1" />
+            <label for="star1" title="text">1 star</label>
+          </div>
+
+
+        </div>
+        <div class="modal-footer">
+          <button id= "cancelRatePerson" type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+          <button id="submitRatePerson" type="button" class="btn btn-primary" data-dismiss="modal">CREATE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/popper.js"></script>
+  <script src="scripts/bootstrap-material-design.js"></script>
+  <script>$("body").bootstrapMaterialDesign();</script>
+  <script src="/__/firebase/7.18.0/firebase-app.js"></script>
+  <script src="/__/firebase/7.18.0/firebase-analytics.js"></script>
+  <script src="/__/firebase/7.18.0/firebase-firestore.js"></script>
+  <script src="/__/firebase/7.18.0/firebase-auth.js"></script>
+  <script src="/__/firebase/init.js"></script>
+  <script src="scripts/jquery.datetimepicker.full.js"></script>
+  <script src="scripts/main.js"></script>
+  <!-- <script>
+    // console.log("find datepicker");
+    $("#inputTime").datetimepicker({
+      startDate: new Date()
+    }
+    );
+  </script> -->
+</body>
+
+</html>
