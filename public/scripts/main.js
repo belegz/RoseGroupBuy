@@ -11,6 +11,7 @@ rhit.FB_KEY_GROUP_STATUS = "Status";
 rhit.FB_KEY_GROUP_TAGS = "Tags";
 rhit.FB_KEY_GROUP_MEMBERS = "Members";
 rhit.FB_KEY_GROUP_OWNERNAME = "OwnerName"
+rhit.FB_KEY_GROUP_ITEMS = "Items";
 
 rhit.FB_COLLECTION_USERS = "Users";
 rhit.FB_KEY_USERS_NAME = "Name";
@@ -19,6 +20,7 @@ rhit.FB_KEY_USERS_GROUPCOUNT = "GroundCount";
 rhit.FB_KEY_USERS_USERNAME = "userName";
 rhit.FB_KEY_USERS_RATE = "Rate";
 rhit.FB_KEY_USERS_PHONENUMBER = "PhoneNumber";
+
 
 rhit.FB_COLLECTION_ITEMS = "ShoppingItems";
 rhit.FB_KEY_ITEMS_PRICE = "Price";
@@ -209,7 +211,7 @@ rhit.Group = class {
 		this.location = location;
 		this.endTime = endTime;
 		this.status = "InProgress";
-		this.members = null;
+		this.members = [];
 		this.tags = tags
 	}
 }
@@ -232,7 +234,7 @@ rhit.FbGroupsManager = class {
 				[rhit.FB_KEY_GROUP_LOCATION]: location,
 				[rhit.FB_KEY_GROUP_ENDTIME]: endTime,
 				[rhit.FB_KEY_GROUP_STATUS]: "InProgress",
-				[rhit.FB_KEY_GROUP_MEMBERS]: null,
+				[rhit.FB_KEY_GROUP_MEMBERS]: [rhit.fbAuthManager.uid],
 				[rhit.FB_KEY_GROUP_TAGS]: tags,
 				[rhit.FB_KEY_GROUP_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
 			})
@@ -296,7 +298,7 @@ rhit.DetailPageController = class {
 			const endTime = firebase.firestore.Timestamp.fromDate(d);
 			const location = document.querySelector("#inputLocation").value;
 			const tags = document.querySelector("#inputTags").value;
-			rhit.fbSingleGroupManager.update(name, seller, location, endTime, "InProgress", ["Rose", "Mickey", "Jack"], tags);
+			rhit.fbSingleGroupManager.update(name, seller, location, endTime, "InProgress", tags);
 		});
 
 		$('#editGroupDialog').on('show.bs.modal', (event) => {
@@ -316,18 +318,24 @@ rhit.DetailPageController = class {
 		
 		document.querySelector("#submitJoinGroup").addEventListener("click", (event) => {
 			const memberId = rhit.fbAuthManager.uid;
-			rhit.fbSingleGroupManager.members.push(memberId);
-		}).catch(function (error) {
-			console.error("Error joining group: ", error);
+			
+			console.log("member Id I am using is ", memberId);
+			// TODO: Add Permission System
+			let newList = rhit.fbSingleGroupManager.members;
+			newList.push(memberId);
+			rhit.fbSingleGroupManager.updateMember(newList);
+			console.log(rhit.fbSingleGroupManager.members);
 		});
 
 		document.querySelector("#submitDropGroup").addEventListener("click", (event) => {
 			const memberId = rhit.fbAuthManager.uid;
-			const members = rhit.fbSingleGroupManager.members;
-			
-			// fruits.splice(0, 1); 
-		}).catch(function (error) {
-			console.error("Error dropping group: ", error);
+			let members = rhit.fbSingleGroupManager.members;
+			const index = members.indexOf(memberId);
+			// console.log(index);
+			members.splice(index,1);
+			// TODO: Remove in Items as well
+			rhit.fbSingleGroupManager.updateMember(members);
+			// console.log(rhit.fbSingleGroupManager.members);
 		});
 
 		document.querySelector("#submitDeleteGroup").addEventListener("click", (event) => {
@@ -397,26 +405,41 @@ rhit.DetailPageController = class {
 		if(rhit.fbSingleGroupManager.owner == rhit.fbAuthManager.uid){
 			document.querySelector("#menuEdit").style.display = "flex";
 			document.querySelector("#menuDelete").style.display = "flex";
+		}else if(rhit.fbSingleGroupManager.members.length==0 || !rhit.fbSingleGroupManager.members.includes(rhit.fbAuthManager.uid)){
+			document.querySelector("#menuJoin").style.display = "flex";
+			document.querySelector("#menuDrop").style.display = "none";
 		}else if(rhit.fbSingleGroupManager.members.includes(rhit.fbAuthManager.uid)){
 			document.querySelector("#menuDrop").style.display = "flex";
-		}else{
-			document.querySelector("#menuJoin").style.display = "flex";
+			document.querySelector("#menuJoin").style.display = "none";
 		}
+
+
+
+
+
+
+
+
 
 		console.log("member is ",rhit.fbSingleGroupManager.members);
 		// Make a new GroupListContainer
-		const newList = htmlToElement('<div id = "memberList"></div>');
+		const newList = htmlToElement('<div id = "#memberList"></div>');
 		// Fill it with Group cards using a loop
 		for (let i = 0; i < rhit.fbSingleGroupManager.members.length; i++) {
 			// const group = rhit.fbGroupsManager.getGroupAtIndex(i);
 			const name = rhit.fbSingleGroupManager.members[i];
 			const itemManager = new rhit.FbMemberItemManager(rhit.fbSingleGroupManager.id,name);
-			const items = itemManager.items;
+			const items = rhit.fbSingleGroupManager.items;
+			// const memberItem = items.get("zhangt4");
+			console.log(typeof(items));
+			console.log(name);
+			console.log(items[name]);
+			console.log('memberItem :>> ', items);
 			let itemsString="";
 			let totalAmount = 0;
-			for(let j = 0 ; j< items.length;j++){
-				itemsString += '<li class="list-group-item"><span>A Bag</span> <span></span></li>';
-			}
+			// for(let j = 0 ; j< items.length;j++){
+			// 	itemsString += '<li class="list-group-item"><span>A Bag</span> <span></span></li>';
+			// }
 			const newCard = this._createMemberCard(name);
 
 			// newCard.onclick = (event) => {
@@ -529,8 +552,20 @@ rhit.FbSingleGroupManager = class {
 				[rhit.FB_KEY_GROUP_LOCATION]: location,
 				[rhit.FB_KEY_GROUP_ENDTIME]: endTime,
 				[rhit.FB_KEY_GROUP_STATUS]: status,
-				[rhit.FB_KEY_GROUP_MEMBERS]: members,
 				[rhit.FB_KEY_GROUP_TAGS]: tags,
+				[rhit.FB_KEY_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
+			})
+			.then(function () {
+				console.log("Document successfully updated!");
+			})
+			.catch(function (error) {
+				console.error("Error updating document: ", error);
+			});
+	}
+
+	updateMember(members) {
+		this._ref.update({
+				[rhit.FB_KEY_GROUP_MEMBERS]: members,
 				[rhit.FB_KEY_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
 			})
 			.then(function () {
@@ -578,8 +613,69 @@ rhit.FbSingleGroupManager = class {
 	}
 
 	get tags() {
-		return this._documentSnapshot.get(rhit.FB_KEY_GROUP_TAGS);
+	return this._documentSnapshot.get(rhit.FB_KEY_GROUP_TAGS);
 	}
+
+	get items(){
+		return this._documentSnapshot.get(rhit.FB_KEY_GROUP_ITEMS);;
+	}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }
 
