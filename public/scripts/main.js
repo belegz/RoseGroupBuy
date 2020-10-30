@@ -360,7 +360,7 @@ rhit.DetailPageController = class {
 		return listItem;
 	}
 
-	_createMemberCard(member){
+	_createMemberCard(itemsString,member){
 		return htmlToElement(`<div class="card-body">
 		<div class="card">
 		  <div class="card-header" id="headingTwo">
@@ -376,9 +376,7 @@ rhit.DetailPageController = class {
 			<div class="card-body">
 			  <p class="card-text">
 				<ul class="list-group list-group-flush">
-				  <li class="list-group-item"><span>Nike Shoes</span> <span>$50</span></li>
-				  <li class="list-group-item"><span>Hat</span> <span>$20</span></li>
-				  <li class="list-group-item"><span>A Bag</span> <span>$30</span></li>
+				  ${itemsString}
 				  <li class="list-group-item" id="totalAmount"> <span></span><span>$100</span></li>
 				</ul>
 				<!-- <div class="row">
@@ -442,7 +440,7 @@ rhit.DetailPageController = class {
 				itemsString += `<li class="list-group-item"><span>${memberItem[j]}</span> <span>${memberItem[j+1]}</span></li>`;
 			}
 			console.log(itemsString);
-			const newCard = this._createMemberCard(name);
+			const newCard = this._createMemberCard(itemsString,name);
 
 			// newCard.onclick = (event) => {
 			// 	// console.log(`You clicked on ${mq.id}`);
