@@ -365,14 +365,14 @@ rhit.DetailPageController = class {
 		<div class="card">
 		  <div class="card-header" id="headingTwo">
 			<h5 class="mb-0">
-			  <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false"
-				aria-controls="collapseTwo">
+			  <button class="btn btn-link" data-toggle="collapse" data-target="#${member}" aria-expanded="false"
+				aria-controls=${member}>
 				${member}
 			  </button>
 			</h5>
 		  </div>
 
-		  <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#collapseOne">
+		  <div id="${member}" class="collapse show" aria-labelledby="headingTwo" data-parent="#${member}">
 			<div class="card-body">
 			  <p class="card-text">
 				<ul class="list-group list-group-flush">
@@ -423,7 +423,7 @@ rhit.DetailPageController = class {
 
 		console.log("member is ",rhit.fbSingleGroupManager.members);
 		// Make a new GroupListContainer
-		const newList = htmlToElement('<div id = "#memberList"></div>');
+		const newList = htmlToElement('<div id = "memberList"></div>');
 		// Fill it with Group cards using a loop
 		for (let i = 0; i < rhit.fbSingleGroupManager.members.length; i++) {
 			// const group = rhit.fbGroupsManager.getGroupAtIndex(i);
@@ -435,11 +435,13 @@ rhit.DetailPageController = class {
 			console.log(name);
 			console.log(items[name]);
 			console.log('memberItem :>> ', items);
+			let memberItem = items[name];
 			let itemsString="";
 			let totalAmount = 0;
-			// for(let j = 0 ; j< items.length;j++){
-			// 	itemsString += '<li class="list-group-item"><span>A Bag</span> <span></span></li>';
-			// }
+			for(let j = 0 ; j< memberItem.length/3; j++){
+				itemsString += `<li class="list-group-item"><span>${memberItem[j]}</span> <span>${memberItem[j+1]}</span></li>`;
+			}
+			console.log(itemsString);
 			const newCard = this._createMemberCard(name);
 
 			// newCard.onclick = (event) => {
