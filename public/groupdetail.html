@@ -23,8 +23,14 @@
       <div class="dropdown-menu dropdown-menu-right" aria-labelledby="lr1">
         <button id="menuEdit" class="dropdown-item" type="button" data-toggle="modal" data-target="#editGroupDialog">
           <i class="material-icons">edit</i>&nbsp;&nbsp;&nbsp;Edit</button>
-        <button id="menuDelete" class="dropdown-item" type="button" data-toggle="modal" data-target="#deleteGroupDialog">
+        <button id="menuDelete" class="dropdown-item" type="button" data-toggle="modal"
+          data-target="#deleteGroupDialog">
           <i class="material-icons">delete</i>&nbsp;&nbsp;&nbsp;Delete</button>
+        <button id="menuMessage" class="dropdown-item" type="button" data-toggle="modal"
+          data-target="#messageGroupDialog">
+          <i class="material-icons">mail</i>&nbsp;&nbsp;&nbsp;Message</button>
+        <button id="menuRate" class="dropdown-item" type="button" data-toggle="modal" data-target="#ratePersonDialog">
+          <i class="material-icons">star</i>&nbsp;&nbsp;&nbsp;Rate</button>
         <button id="menuJoin" class="dropdown-item" type="button" data-toggle="modal" data-target="#joinGroupDialog">
           <i class="material-icons">person_add_alt_1</i>&nbsp;&nbsp;&nbsp;Join</button>
         <button id="menuDrop" class="dropdown-item" type="button" data-toggle="modal" data-target="#dropGroupDialog">
@@ -104,7 +110,7 @@
                       <h5 class="mb-0">
                         <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwo"
                           aria-expanded="false" aria-controls="collapseTwo">
-                          John Doe
+                          Loading...
                         </button>
                       </h5>
                     </div>
@@ -113,9 +119,9 @@
                       <div class="card-body">
                         <p class="card-text">
                         <ul class="list-group list-group-flush">
-                          <li class="list-group-item"><span>Nike Shoes</span> <span>$50</span></li>
-                          <li class="list-group-item"><span>Hat</span> <span>$20</span></li>
-                          <li class="list-group-item"><span>A Bag</span> <span>$30</span></li>
+                          <li class="list-group-item"><span></span> <span></span></li>
+                          <li class="list-group-item"><span></span> <span></span></li>
+                          <li class="list-group-item"><span></span> <span></span></li>
                           <li class="list-group-item" id="totalAmount"> <span></span><span>$100</span></li>
                         </ul>
                         <!-- <div class="row">
@@ -134,7 +140,7 @@
                       <h5 class="mb-0">
                         <button class="btn btn-link" data-toggle="collapse" data-target="#collapseThree"
                           aria-expanded="false" aria-controls="collapseThree">
-                          Tiantian Zhang
+
                         </button>
                       </h5>
                     </div>
@@ -144,7 +150,7 @@
                       <div class="card-body">
                         <p class="card-text">
                         <ul class="list-group list-group-flush">
-                          <li class="list-group-item">CD</li>
+                          <li class="list-group-item"></li>
                         </ul>
                         </p>
                       </div>
@@ -236,6 +242,66 @@
       </div>
     </div>
   </div>
+
+  <div class="modal fade" id="messageGroupDialog" tabindex="-1" role="dialog" aria-labelledby="Message group dialog"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Message This Group</h5>
+        </div>
+        <div class="modal-body">
+
+
+          Are your sure you want to inform the members that they can pick up?
+
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+          <button id="submitMessageGroup" type="button" class="btn btn-primary" data-dismiss="modal">SEND</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="ratePersonDialog" tabindex="-1" role="dialog" aria-labelledby="Rate Person dialog"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Rate This Person</h5>
+        </div>
+        <div class="modal-body">
+          <div id="rateListContainer">
+            <div class="rate">
+              <h6>John Doe</h6>
+              <input type="radio" id="star5" name="rate" value="5" />
+              <label for="star5" title="text">5 stars</label>
+              <input type="radio" id="star4" name="rate" value="4" />
+              <label for="star4" title="text">4 stars</label>
+              <input type="radio" id="star3" name="rate" value="3" />
+              <label for="star3" title="text">3 stars</label>
+              <input type="radio" id="star2" name="rate" value="2" />
+              <label for="star2" title="text">2 stars</label>
+              <input type="radio" id="star1" name="rate" value="1" />
+              <label for="star1" title="text">1 star</label>
+            </div>
+          </div>
+
+
+
+
+        </div>
+        <div class="modal-footer">
+          <button id="cancelRatePerson" type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+          <button id="submitRatePerson" type="button" class="btn btn-primary" data-dismiss="modal">RATE</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 
   <div class="modal fade" id="joinGroupDialog" tabindex="-1" role="dialog" aria-labelledby="Join group dialog"
     aria-hidden="true">

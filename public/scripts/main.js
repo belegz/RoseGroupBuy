@@ -33,7 +33,11 @@ rhit.fbSingleGroupManager = null;
 rhit.fbAuthManager = null;
 rhit.fbPersonalManager = null;
 rhit.fbUser = null;
-rhit.FbMemberItemManager = null;
+rhit.fbMemberItemManager = null;
+
+rhit.isInProg = false;
+rhit.isInFin = false;
+
 
 rhit.User = class {
 	constructor(name, userName, Email) {
@@ -58,7 +62,21 @@ rhit.ListPageController = class {
 	constructor() {
 
 		document.querySelector("#menuAllGroups").addEventListener("click", (event) => {
+			rhit.isInProg = false;
+			rhit.isInFin = false;
 			window.location.href = "/list.html";
+		});
+
+		document.querySelector("#menuMyInProGroups").addEventListener("click", (event) => {
+			rhit.isInProg = true;
+			rhit.isInFin = false;
+			rhit.fbGroupsManager.beginListening(this.updateList.bind(this));
+		});
+
+		document.querySelector("#menuMyFinGroups").addEventListener("click", (event) => {
+			rhit.isInFin = true;
+			rhit.isInProg = false;
+			rhit.fbGroupsManager.beginListening(this.updateList.bind(this));
 		});
 
 		document.querySelector("#menuMyProfile").addEventListener("click", (event) => {
@@ -75,7 +93,7 @@ rhit.ListPageController = class {
 			// console.log("submit");
 			console.log("cancel, try to print date");
 			var d = $('#inputTime').datetimepicker('getValue');
-    		console.log(firebase.firestore.Timestamp.fromDate(d));
+			console.log(firebase.firestore.Timestamp.fromDate(d));
 		});
 
 		document.querySelector("#submitAddGroup").addEventListener("click", (event) => {
@@ -122,11 +140,11 @@ rhit.ListPageController = class {
 		firebase.firestore().collection(rhit.FB_COLLECTION_USERS)
 			.where("userName", "==", group.owner)
 			.onSnapshot((querySnapshot) => {
-				console.log("fetch group owner name");
+				// console.log("fetch group owner name");
 				this._documentSnapshots = querySnapshot.docs;
-				console.log('length :>> ', this._documentSnapshots.length);
+				// console.log('length :>> ', this._documentSnapshots.length);
 				querySnapshot.forEach((doc) => {
-					console.log(doc.id, " => ", doc.get(rhit.FB_KEY_USERS_NAME));
+					// console.log(doc.id, " => ", doc.get(rhit.FB_KEY_USERS_NAME));
 					owner = doc.get(rhit.FB_KEY_USERS_NAME);
 					// return;
 				});
@@ -147,7 +165,7 @@ rhit.ListPageController = class {
 		// .catch(function(error) {
 		// 	console.log("Error getting documents: ", error);
 		// });
-		console.log('owner :>> ', owner);
+		// console.log('owner :>> ', owner);
 		return htmlToElement(`
 		<div class="card border-secondary">
 		<div class="card-header" id = "cardHeaderContianer">
@@ -171,6 +189,8 @@ rhit.ListPageController = class {
 		// console.log("I need to update the list.");
 		// console.log(`Num Groups = ${rhit.fbGroupsManager.length}`);
 		// console.log("Ex Groups = ", rhit.fbGroupsManager.getMovieGroupAtIndex(0));
+		console.log("Is In Progress = ", rhit.isInProg);
+		console.log("Is Finished = ", rhit.isInFin);
 
 		// Make a new GroupListContainer
 		const newList = htmlToElement('<div id="groupListContainer"></div>');
@@ -184,8 +204,21 @@ rhit.ListPageController = class {
 				// rhit.storage.setMovieGroupId(mq.id);
 				window.location.href = `/groupdetail.html?id=${group.id}`;
 			};
+			const status = group.status;
+			const owner = group.owner;
+			console.log(status);
+			if (rhit.isInProg) {
+				if (status == "InProgress" && owner == rhit.fbAuthManager.uid) {
+					newList.appendChild(newCard);
+				}
+			} else if (rhit.isInFin) {
+				if (status == "Finished" && owner == rhit.fbAuthManager.uid) {
+					newList.appendChild(newCard);
+				}
+			} else {
+				newList.appendChild(newCard);
+			}
 
-			newList.appendChild(newCard);
 		}
 		// console.log(rhit.fbGroupsManager.length);
 
@@ -202,7 +235,7 @@ rhit.ListPageController = class {
 }
 
 rhit.Group = class {
-	constructor(id, name, owner, ownerName, seller, location, endTime, tags) {
+	constructor(id, name, owner, ownerName, seller, location, endTime, tags, status) {
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
@@ -210,9 +243,9 @@ rhit.Group = class {
 		this.seller = seller;
 		this.location = location;
 		this.endTime = endTime;
-		this.status = "InProgress";
 		this.members = [];
-		this.tags = tags
+		this.tags = tags;
+		this.status = status;
 	}
 }
 
@@ -253,10 +286,10 @@ rhit.FbGroupsManager = class {
 			.onSnapshot((querySnapshot) => {
 				console.log("Group Update");
 				this._documentSnapshots = querySnapshot.docs;
-				console.log('length :>> ', this._documentSnapshots.length);
-				querySnapshot.forEach((doc) => {
-					console.log(doc.data());
-				});
+				// console.log('length :>> ', this._documentSnapshots.length);
+				// querySnapshot.forEach((doc) => {
+				// console.log(doc.data());
+				// });
 				if (changeListener) {
 					changeListener();
 				}
@@ -272,7 +305,7 @@ rhit.FbGroupsManager = class {
 	}
 	getGroupAtIndex(index) {
 		const docSnapshot = this._documentSnapshots[index];
-		console.log(docSnapshot.get(rhit.FB_KEY_GROUP_ENDTIME), );
+		// console.log(docSnapshot.get(rhit.FB_KEY_GROUP_ENDTIME), );
 		const group = new rhit.Group(
 			docSnapshot.id,
 			docSnapshot.get(rhit.FB_KEY_GROUP_NAME),
@@ -282,6 +315,7 @@ rhit.FbGroupsManager = class {
 			docSnapshot.get(rhit.FB_KEY_GROUP_LOCATION),
 			docSnapshot.get(rhit.FB_KEY_GROUP_ENDTIME).toDate(),
 			docSnapshot.get(rhit.FB_KEY_GROUP_TAGS),
+			docSnapshot.get(rhit.FB_KEY_GROUP_STATUS)
 		);
 		return group;
 	}
@@ -298,7 +332,7 @@ rhit.DetailPageController = class {
 			const endTime = firebase.firestore.Timestamp.fromDate(d);
 			const location = document.querySelector("#inputLocation").value;
 			const tags = document.querySelector("#inputTags").value;
-			rhit.fbSingleGroupManager.update(name, seller, location, endTime, "InProgress", tags);
+			rhit.fbSingleGroupManager.update(name, seller, location, endTime, tags);
 		});
 
 		$('#editGroupDialog').on('show.bs.modal', (event) => {
@@ -315,16 +349,33 @@ rhit.DetailPageController = class {
 			// post-animation
 			document.querySelector("#inputName").focus();
 		});
-		
+
+		document.querySelector("#submitMessageGroup").addEventListener("click", (event) => {
+			// console.log("current status is ", rhit.fbSingleGroupManager.status);
+			// TODO: Add Permission System
+			rhit.fbSingleGroupManager.updateStatus("Finished");
+		});
+
+
+		document.querySelector("#submitRatePerson").addEventListener("click", (event) => {
+			const members = rhit.fbSingleGroupManager.member;
+			for(let i = 0;i<members.length;i++){
+				const newPerson = this._createRateCard(members[i]);
+				console.log(newPerson);
+				document.querySelector("#rateListContainer").appendChild(newPerson);
+			}
+
+		});
+
 		document.querySelector("#submitJoinGroup").addEventListener("click", (event) => {
 			const memberId = rhit.fbAuthManager.uid;
-			
-			console.log("member Id I am using is ", memberId);
+
+			// console.log("member Id I am using is ", memberId);
 			// TODO: Add Permission System
 			let newList = rhit.fbSingleGroupManager.members;
 			newList.push(memberId);
 			rhit.fbSingleGroupManager.updateMember(newList);
-			console.log(rhit.fbSingleGroupManager.members);
+			// console.log(rhit.fbSingleGroupManager.members);
 		});
 
 		document.querySelector("#submitDropGroup").addEventListener("click", (event) => {
@@ -332,7 +383,7 @@ rhit.DetailPageController = class {
 			let members = rhit.fbSingleGroupManager.members;
 			const index = members.indexOf(memberId);
 			// console.log(index);
-			members.splice(index,1);
+			members.splice(index, 1);
 			// TODO: Remove in Items as well
 			rhit.fbSingleGroupManager.updateMember(members);
 			// console.log(rhit.fbSingleGroupManager.members);
@@ -352,27 +403,43 @@ rhit.DetailPageController = class {
 		// rhit.FbMemberItemManager.beginListening(updateView.bind(this));
 	}
 
-	_createItemCard(groupId, member){
-		
+	_createItemCard(groupId, member) {
+
 
 		let listItem = "";
 
 		return listItem;
 	}
 
-	_createMemberCard(itemsString,member){
+	_createRateCard(name) {
+		return htmlToElement(`<div class="rate">
+		<h6>${name}</h6>
+		<input type="radio" id="star5" name="rate" value="5" />
+		<label for="star5" title="text">5 stars</label>
+		<input type="radio" id="star4" name="rate" value="4" />
+		<label for="star4" title="text">4 stars</label>
+		<input type="radio" id="star3" name="rate" value="3" />
+		<label for="star3" title="text">3 stars</label>
+		<input type="radio" id="star2" name="rate" value="2" />
+		<label for="star2" title="text">2 stars</label>
+		<input type="radio" id="star1" name="rate" value="1" />
+		<label for="star1" title="text">1 star</label>
+	  </div>`);
+	}
+
+	_createMemberCard(itemsString, member, collapseName) {
 		return htmlToElement(`<div class="card-body">
 		<div class="card">
 		  <div class="card-header" id="headingTwo">
 			<h5 class="mb-0">
-			  <button class="btn btn-link" data-toggle="collapse" data-target="#${member}" aria-expanded="false"
-				aria-controls=${member}>
+			  <button class="btn btn-link" data-toggle="collapse" data-target="#${collapseName}" aria-expanded="false"
+				aria-controls=${collapseName}>
 				${member}
 			  </button>
 			</h5>
 		  </div>
 
-		  <div id="${member}" class="collapse show" aria-labelledby="headingTwo" data-parent="#${member}">
+		  <div id="${collapseName}" class="collapse show" aria-labelledby="headingTwo" data-parent="#${collapseName}">
 			<div class="card-body">
 			  <p class="card-text">
 				<ul class="list-group list-group-flush">
@@ -400,13 +467,19 @@ rhit.DetailPageController = class {
 		document.querySelector("#cardLocation").innerHTML = rhit.fbSingleGroupManager.location;
 		document.querySelector("#cardTags").innerHTML = rhit.fbSingleGroupManager.tags;
 
-		if(rhit.fbSingleGroupManager.owner == rhit.fbAuthManager.uid){
-			document.querySelector("#menuEdit").style.display = "flex";
-			document.querySelector("#menuDelete").style.display = "flex";
-		}else if(rhit.fbSingleGroupManager.members.length==0 || !rhit.fbSingleGroupManager.members.includes(rhit.fbAuthManager.uid)){
+		if (rhit.fbSingleGroupManager.owner == rhit.fbAuthManager.uid) {
+			if (rhit.fbSingleGroupManager.status == "InProgress") {
+				document.querySelector("#menuEdit").style.display = "flex";
+				document.querySelector("#menuDelete").style.display = "flex";
+				document.querySelector("#menuMessage").style.display = "flex";
+			} else if (rhit.fbSingleGroupManager.status == "Finished") {
+				document.querySelector("#menuRate").style.display = "flex";
+			}
+
+		} else if (rhit.fbSingleGroupManager.members.length == 0 || !rhit.fbSingleGroupManager.members.includes(rhit.fbAuthManager.uid)) {
 			document.querySelector("#menuJoin").style.display = "flex";
 			document.querySelector("#menuDrop").style.display = "none";
-		}else if(rhit.fbSingleGroupManager.members.includes(rhit.fbAuthManager.uid)){
+		} else if (rhit.fbSingleGroupManager.members.includes(rhit.fbAuthManager.uid)) {
 			document.querySelector("#menuDrop").style.display = "flex";
 			document.querySelector("#menuJoin").style.display = "none";
 		}
@@ -417,35 +490,41 @@ rhit.DetailPageController = class {
 
 
 
-
-
-		console.log("member is ",rhit.fbSingleGroupManager.members);
+		console.log("member is ", rhit.fbSingleGroupManager.members);
 		// Make a new GroupListContainer
 		const newList = htmlToElement('<div id = "memberList"></div>');
 		// Fill it with Group cards using a loop
 		for (let i = 0; i < rhit.fbSingleGroupManager.members.length; i++) {
 			// const group = rhit.fbGroupsManager.getGroupAtIndex(i);
 			const name = rhit.fbSingleGroupManager.members[i];
-			const itemManager = new rhit.FbMemberItemManager(rhit.fbSingleGroupManager.id,name);
+			const itemManager = new rhit.FbMemberItemManager(rhit.fbSingleGroupManager.id, name);
 			const items = rhit.fbSingleGroupManager.items;
 			// const memberItem = items.get("zhangt4");
-			console.log(typeof(items));
+			console.log(typeof (items));
 			console.log(name);
 			console.log(items[name]);
 			console.log('memberItem :>> ', items);
 			let memberItem = items[name];
-			let itemsString="";
+			let itemsString = "";
 			let totalAmount = 0;
-			for(let j = 0 ; j< memberItem.length/3; j++){
-				itemsString += `<li class="list-group-item"><span>${memberItem[j]}</span> <span>${memberItem[j+1]}</span></li>`;
+			for (let j = 0; j < memberItem.length / 3; j++) {
+				itemsString += `<li data-amount = "${j}" class="list-group-item ${name}" ><span class="close" data-amount = "${j}">X</span><span class="tagName">${memberItem[j]}</span> <span>$${memberItem[j+1]}</span></li>`;
 			}
 			console.log(itemsString);
-			const newCard = this._createMemberCard(itemsString,name);
+			let collapseName = rhit.fbAuthManager.id + name;
+			const newCard = this._createMemberCard(itemsString, name, collapseName);
 
-			// newCard.onclick = (event) => {
+
+			// temp.forEach((tag)=>{
+			// 	tag.addEventListener("click", (event) => {
+			// 		var div = tag.parentElement;
+			// 		div.style.display = "none";
+			// 	});
+			// });
+			// temp.onclick = (event) => {
 			// 	// console.log(`You clicked on ${mq.id}`);
 			// 	// rhit.storage.setMovieGroupId(mq.id);
-			// 	window.location.href = `/groupdetail.html?id=${group.id}`;
+			// 	// window.location.href = `/groupdetail.html?id=${group.id}`;
 			// };
 
 			newList.appendChild(newCard);
@@ -461,15 +540,52 @@ rhit.DetailPageController = class {
 		// console.log(oldList.parentElement);
 		oldList.parentElement.appendChild(newList);
 		// console.log(oldList.parentElement);
-		
 
-		
+		//add listener to close button
+		const temp = document.getElementsByClassName("close");
+		// newCard.get
+		console.log('temp :>> ', temp);
+		console.log("temp length is ", temp.length);
+		// temp.forEach((tag)=>{
+		// 		tag.addEventListener("click", (event) => {
+		// 			var div = tag.parentElement;
+		// 			div.style.display = "none";
+		// 		});
+		// 	});
+
+		for (let i = 0; i < temp.length; i++) {
+			const tag = temp[i];
+			var div = tag.parentElement;
+			const tagClass = div.className;
+			console.log('tagClass :>> ', tagClass);
+			var tagOwner = tagClass.split(' ')[1];
+			console.log('tagOwner :>> ', tagOwner);
+
+			if(tagOwner != rhit.fbAuthManager.uid){
+				div.style.display = "none"
+			}
+
+			tag.addEventListener("click", (event) => {
+				
+				
+				console.log('event.target :>> ', event.target);
+				const dataAmount = $(event.target).data("amount");
+				console.log('dataAmount :>> ', dataAmount);
+
+
+				rhit.fbSingleGroupManager.deleteItem(tagOwner, dataAmount);
+				// div.style.display = "none";
+			});
+		}
+
+
+
 
 	}
 }
 
-rhit.Items = class{
-	constructor( price, link){
+rhit.Items = class {
+	constructor(price, link) {
 		// this.groupId = groupId;
 		// this.owner = owener;
 		this.link = link;
@@ -479,9 +595,9 @@ rhit.Items = class{
 }
 
 rhit.FbMemberItemManager = class {
-	constructor(groupId, member){
+	constructor(groupId, member) {
 		this.groupId = groupId;
-		this.member  = member;
+		this.member = member;
 		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_ITEMS);
 		this._unsubscribe = null;
 		rhit.fbSingleGroupManager.members
@@ -489,11 +605,11 @@ rhit.FbMemberItemManager = class {
 
 	}
 
-	beginListening(changeListener){
+	beginListening(changeListener) {
 		this.items = [];
-		this._unsubscribe = firestore().collection(rhit.FB_COLLECTION_ITEMS)		
+		this._unsubscribe = firestore().collection(rhit.FB_COLLECTION_ITEMS)
 			.where("OwnerID", "==", this.member)
-			.where("GroupID","==", this.groupId)
+			.where("GroupID", "==", this.groupId)
 			.onSnapshot((querySnapshot) => {
 				console.log("fetch item owner name");
 				this._documentSnapshots = querySnapshot.docs;
@@ -502,9 +618,9 @@ rhit.FbMemberItemManager = class {
 					console.log(doc.id, " => ", doc.get("Name"));
 					let price = doc.get(rhit.FB_KEY_ITEMS_PRICE);
 					console.log(doc.id, " => ", price);
-					
+
 					this.items.push(new rhit.Items(price, doc.get(rhit.FB_KEY_ITEMS_LINK)))
-					
+
 				});
 				if (changeListener) {
 					changeListener();
@@ -513,7 +629,7 @@ rhit.FbMemberItemManager = class {
 			});
 	}
 
-	stopListening(){
+	stopListening() {
 		this._unsubscribe();
 	}
 }
@@ -545,13 +661,12 @@ rhit.FbSingleGroupManager = class {
 		this._unsubscribe();
 	}
 
-	update(name, seller, location, endTime, status, members, tags) {
+	update(name, seller, location, endTime, tags) {
 		this._ref.update({
 				[rhit.FB_KEY_GROUP_NAME]: name,
 				[rhit.FB_KEY_GROUP_SELLER]: seller,
 				[rhit.FB_KEY_GROUP_LOCATION]: location,
 				[rhit.FB_KEY_GROUP_ENDTIME]: endTime,
-				[rhit.FB_KEY_GROUP_STATUS]: status,
 				[rhit.FB_KEY_GROUP_TAGS]: tags,
 				[rhit.FB_KEY_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
 			})
@@ -561,6 +676,18 @@ rhit.FbSingleGroupManager = class {
 			.catch(function (error) {
 				console.error("Error updating document: ", error);
 			});
+	}
+
+	deleteItem(name, index) {
+		let items = rhit.fbSingleGroupManager.items;
+		console.log('items[name] :>> ', items[name]);
+		items[name] = items[name].splice(index,3);
+		console.log('items[name] :>> ', items[name]);
+		
+		this._ref.update({
+			[rhit.FB_KEY_GROUP_ITEMS]: items,
+		})
+
 	}
 
 	updateMember(members) {
@@ -576,11 +703,24 @@ rhit.FbSingleGroupManager = class {
 			});
 	}
 
+	updateStatus(status) {
+		this._ref.update({
+				[rhit.FB_KEY_GROUP_STATUS]: status,
+				[rhit.FB_KEY_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
+			})
+			.then(function () {
+				console.log("Document successfully updated!");
+			})
+			.catch(function (error) {
+				console.error("Error updating document: ", error);
+			});
+	}
+
 	delete() {
 		return this._ref.delete();
 	}
 
-	get id(){
+	get id() {
 		return this._documentSnapshot.id;
 	}
 
@@ -613,70 +753,12 @@ rhit.FbSingleGroupManager = class {
 	}
 
 	get tags() {
-	return this._documentSnapshot.get(rhit.FB_KEY_GROUP_TAGS);
+		return this._documentSnapshot.get(rhit.FB_KEY_GROUP_TAGS);
 	}
 
-	get items(){
+	get items() {
 		return this._documentSnapshot.get(rhit.FB_KEY_GROUP_ITEMS);;
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 rhit.LoginPageController = class {
@@ -702,28 +784,28 @@ rhit.FbAuthManager = class {
 		firebase.auth().onAuthStateChanged((user) => {
 			this._user = user;
 
-			if(this._user){
+			if (this._user) {
 				let owner = null;
 				firebase.firestore().collection(rhit.FB_COLLECTION_USERS)
-				.where("userName", "==", this._user.uid)
-				.onSnapshot((querySnapshot) => {
-					console.log("fetch group owner name");
-					this._documentSnapshots = querySnapshot.docs;
-					console.log('length :>> ', this._documentSnapshots.length);
-					querySnapshot.forEach((doc) => {
-						console.log(doc.id, " => ", doc.get(rhit.FB_KEY_USERS_NAME));
-						let name  =doc.get(rhit.FB_KEY_USERS_NAME);
-						let username = doc.get(rhit.FB_KEY_USERS_USERNAME);
-						let email = doc.get(rhit.FB_KEY_USERS_EMAIL);
-						console.log('email :>> ', email);
-						rhit.fbUser = new rhit.User(name, username, email);
-						// return;
+					.where("userName", "==", this._user.uid)
+					.onSnapshot((querySnapshot) => {
+						console.log("fetch group owner name");
+						this._documentSnapshots = querySnapshot.docs;
+						console.log('length :>> ', this._documentSnapshots.length);
+						querySnapshot.forEach((doc) => {
+							console.log(doc.id, " => ", doc.get(rhit.FB_KEY_USERS_NAME));
+							let name = doc.get(rhit.FB_KEY_USERS_NAME);
+							let username = doc.get(rhit.FB_KEY_USERS_USERNAME);
+							let email = doc.get(rhit.FB_KEY_USERS_EMAIL);
+							console.log('email :>> ', email);
+							rhit.fbUser = new rhit.User(name, username, email);
+							// return;
+						});
+						// if (changeListener) {
+						// 	changeListener();
+						// }
+
 					});
-					// if (changeListener) {
-					// 	changeListener();
-					// }
-	
-				});
 			}
 
 
@@ -878,7 +960,7 @@ rhit.FbAuthManager = class {
 		return !!this._user;
 	}
 
-	get user(){
+	get user() {
 		return this._user;
 	}
 
@@ -907,7 +989,7 @@ rhit.PersonalPageController = class {
 		this.updateRate();
 	}
 
-	updateRate(){
+	updateRate() {
 		// document.querySelector("#userName").innerHTML = rhit.fbAuthManager.displayName;
 		// document.querySelector("#userEmail").innerHTML = rhit.fbAuthManager.email;
 	};
@@ -917,10 +999,10 @@ rhit.FbPersonalManager = class {
 	constructor(user) {
 		console.log("created personal manager");
 		this._user = user;
-		console.log("You have made the personal Manager for user",this._user.uid);
+		console.log("You have made the personal Manager for user", this._user.uid);
 	}
 
-	changeRate(newRate){};
+	changeRate(newRate) {};
 
 }
 
@@ -940,19 +1022,18 @@ rhit.initializePage = function () {
 	const queryString = window.location.search;
 	const urlParams = new URLSearchParams(queryString);
 
-	
+
 
 
 	if (document.querySelector("#listPage")) {
 		console.log(this.fbAuthManager._user);
 		console.log("You are on list Page.");
 		const uid = urlParams.get("uid");
-		
-	$("#inputTime").datetimepicker({
-		startDate: new Date(),
-		
-	  }
-	  );
+
+		$("#inputTime").datetimepicker({
+			startDate: new Date(),
+
+		});
 		rhit.fbGroupsManager = new rhit.FbGroupsManager();
 		new rhit.ListPageController(uid);
 	}
@@ -960,12 +1041,11 @@ rhit.initializePage = function () {
 	if (document.querySelector("#groupdetailPage")) {
 		console.log("You are on detail Page.");
 		// console.log(queryString);
-		
+
 		$("#inputTime").datetimepicker({
 			startDate: new Date(),
-			
-		}
-		);
+
+		});
 		const groupId = urlParams.get("id");
 
 		if (!groupId) {
