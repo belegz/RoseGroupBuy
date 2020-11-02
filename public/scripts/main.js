@@ -512,7 +512,7 @@ rhit.DetailPageController = class {
 			let totalAmount = 0;
 			for (let j = 0; j < memberItem.length / 3; j++) {
 				totalAmount += parseInt(memberItem[j+1]);
-				itemsString += `<li data-amount = "${j}" class="list-group-item ${name} ${rhit.fbSingleGroupManager.owner}" ><span class="close" data-amount = "${j}">X</span><span class="tagName">${memberItem[j]}</span> <span>$${memberItem[j+1]}</span></li>`;
+				itemsString += `<li data-amount = "${j}" class="list-group-item ${name} ${rhit.fbSingleGroupManager.owner} groupItems" data-toggle="modal" data-target="#editItemDialog"" ><span class="close" data-amount = "${j}">X</span><span class="tagName">${memberItem[j]}</span> <span>$${memberItem[j+1]}</span></li>`;
 			}
 			itemsString += `<li class="list-group-item" id="totalAmount"> <span></span><span>$Total: ${totalAmount}</span></li>`;
 			console.log(itemsString);
@@ -576,6 +576,14 @@ rhit.DetailPageController = class {
 			else if(tagOwner != rhit.fbAuthManager.uid){
 				div.style.display = "none"
 			}
+
+			// div.addEventListener("click",(event)=>{
+
+			// });
+			$('.groupItems').on('shown.bs.modal', (event) => {
+				// post-animation
+				document.querySelector("#inputName").focus();
+			});
 
 			tag.addEventListener("click", (event) => {
 				
