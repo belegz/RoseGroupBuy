@@ -582,7 +582,7 @@ rhit.DetailPageController = class {
 			// });
 			$('.groupItems').on('shown.bs.modal', (event) => {
 				// post-animation
-				document.querySelector("#inputName").focus();
+				document.querySelector("#inputItemName").focus();
 			});
 
 			tag.addEventListener("click", (event) => {
