@@ -447,7 +447,7 @@ rhit.DetailPageController = class {
 			  <p class="card-text">
 				<ul class="list-group list-group-flush">
 				  ${itemsString}
-				  <li class="list-group-item" id="totalAmount"> <span></span><span>$100</span></li>
+				 
 				</ul>
 				<!-- <div class="row">
 				  <div class = "col">Nike shoes</div>
@@ -511,8 +511,10 @@ rhit.DetailPageController = class {
 			let itemsString = "";
 			let totalAmount = 0;
 			for (let j = 0; j < memberItem.length / 3; j++) {
-				itemsString += `<li data-amount = "${j}" class="list-group-item ${name}" ><span class="close" data-amount = "${j}">X</span><span class="tagName">${memberItem[j]}</span> <span>$${memberItem[j+1]}</span></li>`;
+				totalAmount += parseInt(memberItem[j+1]);
+				itemsString += `<li data-amount = "${j}" class="list-group-item ${name} ${rhit.fbSingleGroupManager.owner}" ><span class="close" data-amount = "${j}">X</span><span class="tagName">${memberItem[j]}</span> <span>$${memberItem[j+1]}</span></li>`;
 			}
+			itemsString += `<li class="list-group-item" id="totalAmount"> <span></span><span>$Total: ${totalAmount}</span></li>`;
 			console.log(itemsString);
 			let collapseName = rhit.fbAuthManager.id + name;
 			const newCard = this._createMemberCard(itemsString, name, collapseName);
@@ -564,7 +566,14 @@ rhit.DetailPageController = class {
 			var tagOwner = tagClass.split(' ')[1];
 			console.log('tagOwner :>> ', tagOwner);
 
-			if(tagOwner != rhit.fbAuthManager.uid){
+			var groupOwner = tagClass.split(' ')[2];
+			console.log(groupOwner);
+
+			if(groupOwner == rhit.fbAuthManager.uid && tagOwner != rhit.fbAuthManager.uid){
+				tag.style.display= "none";
+			}
+
+			else if(tagOwner != rhit.fbAuthManager.uid){
 				div.style.display = "none"
 			}
 
