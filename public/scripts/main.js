@@ -169,7 +169,7 @@ rhit.ListPageController = class {
 		return htmlToElement(`
 		<div class="card border-secondary">
 		<div class="card-header" id = "cardHeaderContianer">
-			<span id = "card-title">${group.name}</span><span class="badge badge-secondary" style="font-size: 1.25em;"><i class="material-icons">groups</i>&nbsp; +3</span>
+			<span id = "card-title">${group.name}</span><span class="badge badge-secondary" style="font-size: 1.25em;"><i class="material-icons">groups</i>&nbsp; +${group.members.length}</span>
 		  </div>
 		<div class="card-body text-secondary">
 			<span id="cardOwner" class="h5">${group.ownerName}</span>
@@ -235,7 +235,7 @@ rhit.ListPageController = class {
 }
 
 rhit.Group = class {
-	constructor(id, name, owner, ownerName, seller, location, endTime, tags, status) {
+	constructor(id, name, owner, ownerName, seller, location, endTime, members, tags, status) {
 		this.id = id;
 		this.name = name;
 		this.owner = owner;
@@ -243,7 +243,7 @@ rhit.Group = class {
 		this.seller = seller;
 		this.location = location;
 		this.endTime = endTime;
-		this.members = [];
+		this.members = members;
 		this.tags = tags;
 		this.status = status;
 	}
@@ -259,6 +259,7 @@ rhit.FbGroupsManager = class {
 	}
 	add(name, seller, location, endTime, tags) {
 		// Add a new document with a generated id.
+		
 		this._ref.add({
 				[rhit.FB_KEY_GROUP_NAME]: name,
 				[rhit.FB_KEY_GROUP_OWNER]: rhit.fbAuthManager.uid,
@@ -268,6 +269,7 @@ rhit.FbGroupsManager = class {
 				[rhit.FB_KEY_GROUP_ENDTIME]: endTime,
 				[rhit.FB_KEY_GROUP_STATUS]: "InProgress",
 				[rhit.FB_KEY_GROUP_MEMBERS]: [rhit.fbAuthManager.uid],
+				[rhit.FB_KEY_GROUP_ITEMS]: {[rhit.fbAuthManager.uid]: []},
 				[rhit.FB_KEY_GROUP_TAGS]: tags,
 				[rhit.FB_KEY_GROUP_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
 			})
@@ -314,6 +316,7 @@ rhit.FbGroupsManager = class {
 			docSnapshot.get(rhit.FB_KEY_GROUP_SELLER),
 			docSnapshot.get(rhit.FB_KEY_GROUP_LOCATION),
 			docSnapshot.get(rhit.FB_KEY_GROUP_ENDTIME).toDate(),
+			docSnapshot.get(rhit.FB_KEY_GROUP_MEMBERS),
 			docSnapshot.get(rhit.FB_KEY_GROUP_TAGS),
 			docSnapshot.get(rhit.FB_KEY_GROUP_STATUS)
 		);
@@ -574,7 +577,7 @@ rhit.DetailPageController = class {
 
 
 				rhit.fbSingleGroupManager.deleteItem(tagOwner, dataAmount);
-				// div.style.display = "none";
+				div.style.display = "none";
 			});
 		}
 
@@ -680,9 +683,15 @@ rhit.FbSingleGroupManager = class {
 
 	deleteItem(name, index) {
 		let items = rhit.fbSingleGroupManager.items;
+		console.log('items :>> ', items);
 		console.log('items[name] :>> ', items[name]);
-		items[name] = items[name].splice(index,3);
+		console.log('index :>> ', index);
+		console.log(typeof(items[name]));
+		let newItems = items[name].splice(index,3);
+		items[name] = newItems;
+		console.log('newItems :>> ', newItems);
 		console.log('items[name] :>> ', items[name]);
+		console.log('items :>> ', items);
 		
 		this._ref.update({
 			[rhit.FB_KEY_GROUP_ITEMS]: items,
