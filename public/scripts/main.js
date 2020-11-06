@@ -259,7 +259,7 @@ rhit.FbGroupsManager = class {
 	}
 	add(name, seller, location, endTime, tags) {
 		// Add a new document with a generated id.
-		
+
 		this._ref.add({
 				[rhit.FB_KEY_GROUP_NAME]: name,
 				[rhit.FB_KEY_GROUP_OWNER]: rhit.fbAuthManager.uid,
@@ -269,7 +269,9 @@ rhit.FbGroupsManager = class {
 				[rhit.FB_KEY_GROUP_ENDTIME]: endTime,
 				[rhit.FB_KEY_GROUP_STATUS]: "InProgress",
 				[rhit.FB_KEY_GROUP_MEMBERS]: [rhit.fbAuthManager.uid],
-				[rhit.FB_KEY_GROUP_ITEMS]: {[rhit.fbAuthManager.uid]: []},
+				[rhit.FB_KEY_GROUP_ITEMS]: {
+					[rhit.fbAuthManager.uid]: []
+				},
 				[rhit.FB_KEY_GROUP_TAGS]: tags,
 				[rhit.FB_KEY_GROUP_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
 			})
@@ -353,6 +355,7 @@ rhit.DetailPageController = class {
 			document.querySelector("#inputName").focus();
 		});
 
+
 		document.querySelector("#submitMessageGroup").addEventListener("click", (event) => {
 			// console.log("current status is ", rhit.fbSingleGroupManager.status);
 			// TODO: Add Permission System
@@ -362,7 +365,7 @@ rhit.DetailPageController = class {
 
 		document.querySelector("#submitRatePerson").addEventListener("click", (event) => {
 			const members = rhit.fbSingleGroupManager.member;
-			for(let i = 0;i<members.length;i++){
+			for (let i = 0; i < members.length; i++) {
 				const newPerson = this._createRateCard(members[i]);
 				console.log(newPerson);
 				document.querySelector("#rateListContainer").appendChild(newPerson);
@@ -511,8 +514,13 @@ rhit.DetailPageController = class {
 			let itemsString = "";
 			let totalAmount = 0;
 			for (let j = 0; j < memberItem.length / 3; j++) {
-				totalAmount += parseInt(memberItem[j+1]);
-				itemsString += `<li data-amount = "${j}" class="list-group-item ${name} ${rhit.fbSingleGroupManager.owner} groupItems" data-toggle="modal" data-target="#editItemDialog"" ><span class="close" data-amount = "${j}">X</span><span class="tagName">${memberItem[j]}</span> <span>$${memberItem[j+1]}</span></li>`;
+				totalAmount += parseInt(memberItem[j + 1]);
+				if (memberItem[j + 2] != "") {
+					console.log('memberItem[j+2] :>> ', memberItem[j+2]);
+					itemsString += `<li data-amount = "${j}" class="list-group-item ${name} ${rhit.fbSingleGroupManager.owner} groupItems" data-toggle="modal" data-target="#editItemDialog"" ><span class="close" data-amount = "${j}">X</span><span class="tagName"><a href="${memberItem[j+2]}" class="itemLink" target="_blank">${memberItem[j]}</a></span> <span>$${memberItem[j+1]}</span></li>`;
+				} else {
+					itemsString += `<li data-amount = "${j}" class="list-group-item ${name} ${rhit.fbSingleGroupManager.owner} groupItems" data-toggle="modal" data-target="#editItemDialog"" ><span class="close" data-amount = "${j}">X</span><span class="tagName">${memberItem[j]}</span> <span>$${memberItem[j+1]}</span></li>`;
+				}
 			}
 			itemsString += `<li class="list-group-item" id="totalAmount"> <span></span><span>$Total: ${totalAmount}</span></li>`;
 			console.log(itemsString);
@@ -548,6 +556,8 @@ rhit.DetailPageController = class {
 
 		//add listener to close button
 		const temp = document.getElementsByClassName("close");
+		
+		// const tempLinks = document.getElementsByClassName("itemLink");
 		// newCard.get
 		console.log('temp :>> ', temp);
 		console.log("temp length is ", temp.length);
@@ -560,6 +570,8 @@ rhit.DetailPageController = class {
 
 		for (let i = 0; i < temp.length; i++) {
 			const tag = temp[i];
+			
+			// const currLink = temp[i];
 			var div = tag.parentElement;
 			const tagClass = div.className;
 			console.log('tagClass :>> ', tagClass);
@@ -569,11 +581,9 @@ rhit.DetailPageController = class {
 			var groupOwner = tagClass.split(' ')[2];
 			console.log(groupOwner);
 
-			if(groupOwner == rhit.fbAuthManager.uid && tagOwner != rhit.fbAuthManager.uid){
-				tag.style.display= "none";
-			}
-
-			else if(tagOwner != rhit.fbAuthManager.uid){
+			if (groupOwner == rhit.fbAuthManager.uid && tagOwner != rhit.fbAuthManager.uid) {
+				tag.style.display = "none";
+			} else if (tagOwner != rhit.fbAuthManager.uid) {
 				div.style.display = "none"
 			}
 
@@ -581,13 +591,34 @@ rhit.DetailPageController = class {
 
 			// });
 			$('.groupItems').on('shown.bs.modal', (event) => {
-				// post-animation
-				document.querySelector("#inputItemName").focus();
+				// pre-animation
+				let children = event.target;
+				console.log(children);
+				// document.querySelector("#inputItemName").value = tagClass.split(' ')[2];
+
 			});
 
+			// $('.groupItems').on('shown.bs.modal', (event) => {
+			// 	// post-animation
+			// 	document.querySelector("#inputItemName").focus();
+			// });
+			$(".groupItems a").click(function (e) {
+				// Do something
+				e.stopPropagation();
+			});
+
+			// $('.groupItems').add('.itemLink').click((event) => {
+			// 	event.stopPropagation();
+			// });
+			// currLink.addEventListener("click", function($event){
+			// 	$event.preventDefault();
+			// 	$event.stopPropagation();
+			// });
+
+
 			tag.addEventListener("click", (event) => {
-				
-				
+
+
 				console.log('event.target :>> ', event.target);
 				const dataAmount = $(event.target).data("amount");
 				console.log('dataAmount :>> ', dataAmount);
@@ -703,13 +734,13 @@ rhit.FbSingleGroupManager = class {
 		console.log('items :>> ', items);
 		console.log('items[name] :>> ', items[name]);
 		console.log('index :>> ', index);
-		console.log(typeof(items[name]));
-		let newItems = items[name].splice(index,3);
+		console.log(typeof (items[name]));
+		let newItems = items[name].splice(index, 3);
 		items[name] = newItems;
 		console.log('newItems :>> ', newItems);
 		console.log('items[name] :>> ', items[name]);
 		console.log('items :>> ', items);
-		
+
 		this._ref.update({
 			[rhit.FB_KEY_GROUP_ITEMS]: items,
 		})
@@ -999,6 +1030,8 @@ rhit.FbAuthManager = class {
 rhit.PersonalPageController = class {
 	constructor() {
 
+		console.log("Created personal controller");
+
 		document.querySelector("#menuAllGroups").addEventListener("click", (event) => {
 			window.location.href = "/list.html";
 		});
@@ -1012,20 +1045,93 @@ rhit.PersonalPageController = class {
 			rhit.fbAuthManager.signOut();
 		});
 
-		this.updateRate();
+		rhit.fbPersonalManager.beginListening(this.updateRate.bind(this));
 	}
 
 	updateRate() {
 		// document.querySelector("#userName").innerHTML = rhit.fbAuthManager.displayName;
 		// document.querySelector("#userEmail").innerHTML = rhit.fbAuthManager.email;
-	};
+
+		const newContainer = htmlToElement('<div id="personalInfoContainer"></div>');
+		const name  = rhit.fbPersonalManager;
+		const newPersonalCard = this._createPersonalCard(name, number, email);
+		newContainer.appendChild(newPersonalCard);
+
+		const oldContainer = document.querySelector("#personalInfoContainer");
+		oldContainer.removeAttribute("id");
+		oldContainer.hidden = true;
+		oldContainer.parentElement.appendChild(newContainer);
+	}
+
+	_createPersonalCard(name, number, email) {
+		return htmlToElement(`
+		<div class="card">
+		<img src="" alt="User Image">
+		<p id="userRating"><strong>Rating: </strong>
+		  <a href="#">
+			<span class="fa fa-star"></span>
+		  </a>
+		  <a href="#">
+			<span class="fa fa-star"></span>
+		  </a>
+		  <a href="#">
+			<span class="fa fa-star"></span>
+		  </a>
+		  <a href="#">
+			<span class="fa fa-star"></span>
+		  </a>
+		  <a href="#">
+			<span class="fa fa-star-o"></span>
+		  </a>
+		</p>
+		<div id="box">
+		  <div id="infobox">
+			<h2 id="userName">${name}</h2>
+			<p id="userPhone"><strong>Phone Number: </strong> ${number} </p>
+			<p id="userEmail"><strong>Email: </strong> ${em} </p>
+		  </div>
+		  <div id="buttonbox">
+			<p><button id="InProgButton" type="button" class="btn">See All My In Prog Groups&nbsp;&nbsp;</button></p>
+			<p><button id="FinishedButton" type="button" class="btn">See All My Finished Groups</button></p>
+		  </div>
+		</div>
+	  </div>
+		`);
+	}
 }
 
 rhit.FbPersonalManager = class {
 	constructor(user) {
 		console.log("created personal manager");
 		this._user = user;
+		this.name = null;
+		this.username = null;
+		this.email = null;
+		this.number = null;
+		this._unsubscribe = null;
 		console.log("You have made the personal Manager for user", this._user.uid);
+	}
+
+	beginListening(changeListener) {
+		if (this._user) {
+			this._unsubscribe = firebase.firestore().collection(rhit.FB_COLLECTION_USERS)
+				.where("userName", "==", this._user.uid)
+				.onSnapshot((querySnapshot) => {
+					querySnapshot.forEach((doc) => {
+						this.name = doc.get(rhit.FB_KEY_USERS_NAME);
+						this.username = doc.get(rhit.FB_KEY_USERS_USERNAME);
+						this.email = doc.get(rhit.FB_KEY_USERS_EMAIL);
+						// this.number
+					});
+					if (changeListener) {
+						changeListener();
+					}
+				});
+		}
+	}
+
+	stopListening() {
+		this._unsubscribe();
 	}
 
 	changeRate(newRate) {};
