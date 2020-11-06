@@ -556,6 +556,7 @@ rhit.DetailPageController = class {
 
 		//add listener to close button
 		const temp = document.getElementsByClassName("close");
+		const temp1 = document.getElementsByClassName("groupItems");
 		
 		// const tempLinks = document.getElementsByClassName("itemLink");
 		// newCard.get
@@ -590,13 +591,58 @@ rhit.DetailPageController = class {
 			// div.addEventListener("click",(event)=>{
 
 			// });
+			console.log("try on modal");
+			temp1[i].addEventListener("click", function(event){
+				// console.log(event.target);
+				const tempTarget = event.target.children;
+				// console.log(tempTarget);
+				const name = tempTarget[1];
+				// console.log(name);
+				let linkData = "";
+				let nameData = "";
+				// console.log(name.children);
+				if(name.children.length!=0){
+					linkData = name.children[0];
+					linkData = linkData.getAttribute("href");
+					nameData = name.children[0].innerHTML;
+				}else{
+					nameData = name.innerHTML;
+					console.log(nameData);
+				}
+				const price = tempTarget[2];
+				let priceData = price.innerHTML;
+				
+				priceData = parseInt(priceData.substring(1));
+				// console.log(priceData);
+				const tempIndex = $(event.target).data("amount");
+				// console.log(tempIndex);
+				document.querySelector("#itemOwner").innerHTML = tagOwner;
+				document.querySelector("#itemIndex").innerHTML = tempIndex;
+				document.querySelector("#inputItemEditName").value = nameData;
+				document.querySelector("#inputItemEditPrice").value = priceData;
+				document.querySelector("#inputItemEditLink").value = linkData;
+
+			});
+			
+			
 			$('.groupItems').on('shown.bs.modal', (event) => {
 				// pre-animation
 				let children = event.target;
 				console.log(children);
-				// document.querySelector("#inputItemName").value = tagClass.split(' ')[2];
+				
 
 			});
+
+			// $('.groupItems')
+				// 	$event.preventDefault();
+				// 	$event.stopPropagation();
+				// });
+			// $('.groupItems').on("shown.bs.modal", function () { 
+			// 	console.log("hi");
+			// });
+			// $('.groupItems').modal('show'); //This can also be $("#myModal").modal({ show: true });
+
+			
 
 			// $('.groupItems').on('shown.bs.modal', (event) => {
 			// 	// post-animation
@@ -626,6 +672,7 @@ rhit.DetailPageController = class {
 
 				rhit.fbSingleGroupManager.deleteItem(tagOwner, dataAmount);
 				div.style.display = "none";
+				event.stopPropagation();
 			});
 		}
 
@@ -735,11 +782,15 @@ rhit.FbSingleGroupManager = class {
 		console.log('items[name] :>> ', items[name]);
 		console.log('index :>> ', index);
 		console.log(typeof (items[name]));
-		let newItems = items[name].splice(index, 3);
-		items[name] = newItems;
-		console.log('newItems :>> ', newItems);
-		console.log('items[name] :>> ', items[name]);
-		console.log('items :>> ', items);
+		let test = ["iphone","300","haha","try","try","try"];
+		items[name].splice(index, 3);
+		console.log(test);
+		test.splice(0,3)
+		console.log(test);
+		console.log('newItems :>> ', items[name]);
+		console.log(items);
+		// console.log('items[name] :>> ', items[name]);
+		// console.log('items :>> ', items);
 
 		this._ref.update({
 			[rhit.FB_KEY_GROUP_ITEMS]: items,
