@@ -388,12 +388,12 @@ rhit.DetailPageController = class {
 
 
 		document.querySelector("#submitRatePerson").addEventListener("click", (event) => {
-			const members = rhit.fbSingleGroupManager.member;
-			for (let i = 0; i < members.length; i++) {
-				const newPerson = this._createRateCard(members[i]);
-				console.log(newPerson);
-				document.querySelector("#rateListContainer").appendChild(newPerson);
-			}
+			// const members = rhit.fbSingleGroupManager.member;
+			// for (let i = 0; i < members.length; i++) {
+			// 	const newPerson = this._createRateCard(members[i]);
+			// 	console.log(newPerson);
+			// 	document.querySelector("#rateListContainer").appendChild(newPerson);
+			// }
 
 		});
 
@@ -452,16 +452,16 @@ rhit.DetailPageController = class {
 	_createRateCard(name) {
 		return htmlToElement(`<div class="rate">
 		<h6>${name}</h6>
-		<input type="radio" id="star5" name="rate" value="5" />
-		<label for="star5" title="text">5 stars</label>
-		<input type="radio" id="star4" name="rate" value="4" />
-		<label for="star4" title="text">4 stars</label>
-		<input type="radio" id="star3" name="rate" value="3" />
-		<label for="star3" title="text">3 stars</label>
-		<input type="radio" id="star2" name="rate" value="2" />
-		<label for="star2" title="text">2 stars</label>
-		<input type="radio" id="star1" name="rate" value="1" />
-		<label for="star1" title="text">1 star</label>
+		<input type="radio" id="star5-${name}" name="rate-${name}" value="5" />
+		<label for="star5-${name}" title="text">5 stars</label>
+		<input type="radio" id="star4-${name}" name="rate-${name}" value="4" />
+		<label for="star4-${name}" title="text">4 stars</label>
+		<input type="radio" id="star3-${name}" name="rate-${name}" value="3" />
+		<label for="star3-${name}" title="text">3 stars</label>
+		<input type="radio" id="star2-${name}" name="rate-${name}" value="2" />
+		<label for="star2-${name}" title="text">2 stars</label>
+		<input type="radio" id="star1-${name}" name="rate-${name}" value="1" />
+		<label for="star1-${name}" title="text">1 star</label>
 	  </div>`);
 	}
 
@@ -640,7 +640,7 @@ rhit.DetailPageController = class {
 				let linkData = "";
 				let nameData = "";
 				console.log(name.children);
-				if (name.children==null||name.children.length==0) {
+				if (name.children == null || name.children.length == 0) {
 					nameData = name.innerHTML;
 					console.log(nameData);
 				}
@@ -649,7 +649,7 @@ rhit.DetailPageController = class {
 					linkData = name.children[0];
 					linkData = linkData.getAttribute("href");
 					nameData = name.children[0].innerHTML;
-				} 
+				}
 				const price = tempTarget[2];
 				let priceData = price.innerHTML;
 
@@ -666,7 +666,7 @@ rhit.DetailPageController = class {
 					console.log("try to update");
 					let newName = document.querySelector("#inputItemEditName").value;
 					let newPrice = document.querySelector("#inputItemEditPrice").value;
-					let newLink= document.querySelector("#inputItemEditLink").value;
+					let newLink = document.querySelector("#inputItemEditLink").value;
 					let thisOwner = document.querySelector("#itemOwner").innerHTML;
 					let thisIndex = document.querySelector("#itemIndex").innerHTML
 					console.log(thisOwner);
@@ -675,7 +675,7 @@ rhit.DetailPageController = class {
 					let oldItemList = rhit.fbSingleGroupManager.items;
 					let oldOwnerList = oldItemList[thisOwner];
 					console.log('oldOwnerList :>> ', oldOwnerList);
-					oldOwnerList.splice(thisIndex,3,newName,newPrice,newLink);
+					oldOwnerList.splice(thisIndex, 3, newName, newPrice, newLink);
 					console.log('oldOwnerList :>> ', oldOwnerList);
 					console.log(oldItemList);
 					rhit.fbSingleGroupManager.addItem(oldItemList);
@@ -738,6 +738,16 @@ rhit.DetailPageController = class {
 				div.style.display = "none";
 				event.stopPropagation();
 			});
+		}
+
+		const members = rhit.fbSingleGroupManager.members;
+		for (let i = 0; i < members.length; i++) {
+			if (members[i] != rhit.fbSingleGroupManager.owner) {
+				// const memberName = rhit.fbSingleGroupManager.getName(members[i]);
+				const newPerson = this._createRateCard(members[i]);
+				console.log(newPerson);
+				document.querySelector("#rateListContainer").appendChild(newPerson);
+			}
 		}
 
 
@@ -818,6 +828,23 @@ rhit.FbSingleGroupManager = class {
 		});
 
 	}
+
+	// getName(id) {
+		
+	// 	firebase.firestore().collection(rhit.FB_COLLECTION_USERS)
+	// 		.where("userName", "==", id)
+	// 		.get()
+	// 		.then((querySnapshot) => {
+	// 			querySnapshot.forEach(function (doc) {
+	// 				// doc.data() is never undefined for query doc snapshots
+	// 				console.log(doc.id, " => ", doc.data().Name);
+	// 				await doc.data().Name;
+	// 			});
+	// 		})
+	// 		.catch(function (error) {
+	// 			console.log("Error getting documents: ", error);
+	// 		});
+	// }
 
 	stopListening() {
 		this._unsubscribe();
@@ -1336,22 +1363,22 @@ rhit.FbPersonalManager = class {
 
 }
 
-rhit.notifyFinished = function (group){
-	if(!("Notification" in window)){
-	  alert("This brower does not support notifications.");
-	  console.log("No support");
-	}else if(Notification.permission == "granted"){
-	  var notification = new Notification(`Hi there.\n Your group ${group.name} is ready!\n Please pick it up at ${group.location}`);
-	}else if(Notification.permission!= "denied"){
-	  Notification.requestPermission(function(permission){
-		console.log("ask for permission");
-		 if("permisson" =="granted"){
-		   var notification = new Notification(`Hi there.\n Your group ${group.name} is ready!\n Please pick it up at ${group.location}`);
-		 }
-	  });
+rhit.notifyFinished = function (group) {
+	if (!("Notification" in window)) {
+		alert("This brower does not support notifications.");
+		console.log("No support");
+	} else if (Notification.permission == "granted") {
+		var notification = new Notification(`Hi there.\n Your group ${group.name} is ready!\n Please pick it up at ${group.location}`);
+	} else if (Notification.permission != "denied") {
+		Notification.requestPermission(function (permission) {
+			console.log("ask for permission");
+			if ("permisson" == "granted") {
+				var notification = new Notification(`Hi there.\n Your group ${group.name} is ready!\n Please pick it up at ${group.location}`);
+			}
+		});
 	}
- }
- 
+}
+
 
 
 
