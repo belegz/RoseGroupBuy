@@ -23,6 +23,18 @@
         </button>
         <a class="navbar-brand" href="#">&nbsp;&nbsp;Personal Page</a>
       </div>
+
+      <!-- <div class="dropdown pull-xs-right">
+        <button class="btn bmd-btn-icon dropdown-toggle" type="button" id="lr1" data-toggle="dropdown"
+          aria-haspopup="true" aria-expanded="false">
+          <i class="material-icons">more_vert</i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="lr1">
+          <button id="menuEdit" class="dropdown-item" type="button" data-toggle="modal" data-target="#editProfileDialog">
+            <i class="material-icons">edit</i>&nbsp;&nbsp;&nbsp;Edit</button>
+        </div>
+      </div> -->
+
     </header>
     <div id="dw-s2" class="bmd-layout-drawer bg-faded">
       <header>
@@ -30,10 +42,10 @@
       </header>
       <ul class="list-group">
         <a id="menuAllGroups" class="list-group-item"><i class="material-icons">groups</i>Rose Square</a>
-        <a id="menuMyProfile" class="list-group-item"><i class="material-icons">account_box</i>My Profile</a>
-        <a id="menuMyInProGroups" class="list-group-item"><i class="material-icons">shop</i>My InProg Groups</a>
+        <!-- <a id="menuMyProfile" class="list-group-item"><i class="material-icons">account_box</i>My Profile</a> -->
+        <!-- <a id="menuMyInProGroups" class="list-group-item"><i class="material-icons">shop</i>My InProg Groups</a>
         <a id="menuMyFinGroups" class="list-group-item"><i class="material-icons">assignment_turned_in</i>My Finished
-          Groups</a>
+          Groups</a> -->
         <a id="menuSignOut" class="list-group-item"><i class="material-icons">logout</i>Sign Out</a>
       </ul>
     </div>
@@ -41,9 +53,9 @@
       <div id="personalPage" class="container page-container">
         <div id="personalInfoContainer">
           Loading...
-        </div>
-        <!-- <div class="card">
-          <img src="images/groupBuy.jpg" alt="User Image">
+        
+        <!-- <div id="personalCard" class="card"> -->
+          <!-- <img src="images/groupBuy.jpg" alt="User Image">
           <p id="userRating"><strong>Rating: </strong>
             <a href="#">
               <span class="fa fa-star"></span>
@@ -71,10 +83,49 @@
               <p><button id="InProgButton" type="button" class="btn">See All My In Prog Groups&nbsp;&nbsp;</button></p>
               <p><button id="FinishedButton" type="button" class="btn">See All My Finished Groups</button></p>
             </div>
-          </div>
-        </div> -->
+          </div> -->
+        <!-- </div> -->
+      </div>
       </div>
     </main>
+
+    <!-- <div id="buttonbox">
+      <p><button id="EditProfileButton" type="button" class="btn" data-toggle="modal"
+          data-target="#editProfileDialog">Edit My Profile&nbsp;&nbsp;</button></p>
+    </div> -->
+
+    <div class="modal fade" id="editProfileDialog" tabindex="-1" role="dialog" aria-labelledby="Edit profile dialog"
+      aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Personal Profile</h5>
+          </div>
+          <div class="modal-body">
+            <div class="form-group bmd-form-group">
+              <label for="formGroupExampleInput">Phone Number</label>
+              <input type = "number"class="form-control" id="inputNumber" placeholder="">
+            </div>
+<!-- 
+            <div class="form-group bmd-form-group">
+              <label for="formGroupExampleInput">Name</label>
+              <input type="text" class="form-control" id="inputItemEditName" placeholder="">
+            </div> -->
+
+            <div class="form-group bmd-form-group">
+              <label for="formGroupExampleInput2">Email</label>
+              <input type="text" class="form-control" id="inputEmail" placeholder="">
+            </div>
+
+
+          </div>
+          <div class="modal-footer">
+            <button id="cancelEditProfile" type="button" class="btn btn-secondary" data-dismiss="modal">CANCEL</button>
+            <button id="submitEditProfile" type="button" class="btn btn-primary" data-dismiss="modal">UPDATE</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
 

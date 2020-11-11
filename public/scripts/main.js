@@ -89,12 +89,15 @@ rhit.ListPageController = class {
 			rhit.fbAuthManager.signOut();
 		});
 
+
+
 		document.querySelector("#cancelAddGroup").addEventListener("click", (event) => {
 			// console.log("submit");
 			console.log("cancel, try to print date");
 			var d = $('#inputTime').datetimepicker('getValue');
 			console.log(firebase.firestore.Timestamp.fromDate(d));
 		});
+
 
 		document.querySelector("#submitAddGroup").addEventListener("click", (event) => {
 			// console.log("submit");
@@ -300,6 +303,7 @@ rhit.FbGroupsManager = class {
 
 			});
 	}
+
 	stopListening() {
 		this._unsubscribe();
 	}
@@ -355,6 +359,26 @@ rhit.DetailPageController = class {
 			document.querySelector("#inputName").focus();
 		});
 
+		document.querySelector("#submitAddItem").addEventListener("click", (event) => {
+			// console.log("submit");
+			const name = document.querySelector("#inputItemName").value;
+			const price = document.querySelector("#inputItemPrice").value;
+			const link = document.querySelector("#inputItemLink").value;
+			// console.log(Group);
+			// console.log(movie);
+			let currentItemList = rhit.fbSingleGroupManager.items;
+			// console.log(currentItemList);
+			let memberList = currentItemList[rhit.fbAuthManager.uid];
+			console.log(currentItemList);
+			memberList.push(name);
+			memberList.push(price);
+			memberList.push(link);
+			console.log(currentItemList);
+			rhit.fbSingleGroupManager.addItem(currentItemList);
+
+
+		});
+
 
 		document.querySelector("#submitMessageGroup").addEventListener("click", (event) => {
 			// console.log("current status is ", rhit.fbSingleGroupManager.status);
@@ -380,18 +404,26 @@ rhit.DetailPageController = class {
 			// TODO: Add Permission System
 			let newList = rhit.fbSingleGroupManager.members;
 			newList.push(memberId);
-			rhit.fbSingleGroupManager.updateMember(newList);
+			let currentItemList = rhit.fbSingleGroupManager.items;
+			let newMemberlist = [];
+			currentItemList[memberId] = newMemberlist;
+			// rhit.fbSingleGroupManager.updateMember();
+			rhit.fbSingleGroupManager.updateMemberList(newList, currentItemList);
 			// console.log(rhit.fbSingleGroupManager.members);
 		});
 
 		document.querySelector("#submitDropGroup").addEventListener("click", (event) => {
 			const memberId = rhit.fbAuthManager.uid;
 			let members = rhit.fbSingleGroupManager.members;
+			let items = rhit.fbSingleGroupManager.items;
+			console.log(items);
+			delete items[memberId];
+			console.log(items);
 			const index = members.indexOf(memberId);
 			// console.log(index);
 			members.splice(index, 1);
 			// TODO: Remove in Items as well
-			rhit.fbSingleGroupManager.updateMember(members);
+			rhit.fbSingleGroupManager.updateMemberList(members, items);
 			// console.log(rhit.fbSingleGroupManager.members);
 		});
 
@@ -474,6 +506,7 @@ rhit.DetailPageController = class {
 		document.querySelector("#cardTags").innerHTML = rhit.fbSingleGroupManager.tags;
 
 		if (rhit.fbSingleGroupManager.owner == rhit.fbAuthManager.uid) {
+			document.querySelector("#item-fab").style.display = "inline";
 			if (rhit.fbSingleGroupManager.status == "InProgress") {
 				document.querySelector("#menuEdit").style.display = "flex";
 				document.querySelector("#menuDelete").style.display = "flex";
@@ -485,9 +518,14 @@ rhit.DetailPageController = class {
 		} else if (rhit.fbSingleGroupManager.members.length == 0 || !rhit.fbSingleGroupManager.members.includes(rhit.fbAuthManager.uid)) {
 			document.querySelector("#menuJoin").style.display = "flex";
 			document.querySelector("#menuDrop").style.display = "none";
+
+			document.querySelector("#item-fab").style.display = "none";
 		} else if (rhit.fbSingleGroupManager.members.includes(rhit.fbAuthManager.uid)) {
 			document.querySelector("#menuDrop").style.display = "flex";
 			document.querySelector("#menuJoin").style.display = "none";
+
+			document.querySelector("#item-fab").style.display = "inline";
+
 		}
 
 
@@ -513,10 +551,11 @@ rhit.DetailPageController = class {
 			let memberItem = items[name];
 			let itemsString = "";
 			let totalAmount = 0;
+			console.log(memberItem);
 			for (let j = 0; j < memberItem.length / 3; j++) {
 				totalAmount += parseInt(memberItem[j + 1]);
 				if (memberItem[j + 2] != "") {
-					console.log('memberItem[j+2] :>> ', memberItem[j+2]);
+					console.log('memberItem[j+2] :>> ', memberItem[j + 2]);
 					itemsString += `<li data-amount = "${j}" class="list-group-item ${name} ${rhit.fbSingleGroupManager.owner} groupItems" data-toggle="modal" data-target="#editItemDialog"" ><span class="close" data-amount = "${j}">X</span><span class="tagName"><a href="${memberItem[j+2]}" class="itemLink" target="_blank">${memberItem[j]}</a></span> <span>$${memberItem[j+1]}</span></li>`;
 				} else {
 					itemsString += `<li data-amount = "${j}" class="list-group-item ${name} ${rhit.fbSingleGroupManager.owner} groupItems" data-toggle="modal" data-target="#editItemDialog"" ><span class="close" data-amount = "${j}">X</span><span class="tagName">${memberItem[j]}</span> <span>$${memberItem[j+1]}</span></li>`;
@@ -557,7 +596,7 @@ rhit.DetailPageController = class {
 		//add listener to close button
 		const temp = document.getElementsByClassName("close");
 		const temp1 = document.getElementsByClassName("groupItems");
-		
+
 		// const tempLinks = document.getElementsByClassName("itemLink");
 		// newCard.get
 		console.log('temp :>> ', temp);
@@ -571,7 +610,7 @@ rhit.DetailPageController = class {
 
 		for (let i = 0; i < temp.length; i++) {
 			const tag = temp[i];
-			
+
 			// const currLink = temp[i];
 			var div = tag.parentElement;
 			const tagClass = div.className;
@@ -592,26 +631,28 @@ rhit.DetailPageController = class {
 
 			// });
 			console.log("try on modal");
-			temp1[i].addEventListener("click", function(event){
+			temp1[i].addEventListener("click", function (event) {
 				// console.log(event.target);
 				const tempTarget = event.target.children;
-				// console.log(tempTarget);
+				console.log(tempTarget);
 				const name = tempTarget[1];
 				// console.log(name);
 				let linkData = "";
 				let nameData = "";
-				// console.log(name.children);
-				if(name.children.length!=0){
-					linkData = name.children[0];
-					linkData = linkData.getAttribute("href");
-					nameData = name.children[0].innerHTML;
-				}else{
+				console.log(name.children);
+				if (name.children==null||name.children.length==0) {
 					nameData = name.innerHTML;
 					console.log(nameData);
 				}
+				// console.log(name.children);
+				else if (name.children.length != 0) {
+					linkData = name.children[0];
+					linkData = linkData.getAttribute("href");
+					nameData = name.children[0].innerHTML;
+				} 
 				const price = tempTarget[2];
 				let priceData = price.innerHTML;
-				
+
 				priceData = parseInt(priceData.substring(1));
 				// console.log(priceData);
 				const tempIndex = $(event.target).data("amount");
@@ -621,28 +662,51 @@ rhit.DetailPageController = class {
 				document.querySelector("#inputItemEditName").value = nameData;
 				document.querySelector("#inputItemEditPrice").value = priceData;
 				document.querySelector("#inputItemEditLink").value = linkData;
+				document.querySelector("#submitEditItem").addEventListener("click", (event) => {
+					console.log("try to update");
+					let newName = document.querySelector("#inputItemEditName").value;
+					let newPrice = document.querySelector("#inputItemEditPrice").value;
+					let newLink= document.querySelector("#inputItemEditLink").value;
+					let thisOwner = document.querySelector("#itemOwner").innerHTML;
+					let thisIndex = document.querySelector("#itemIndex").innerHTML
+					console.log(thisOwner);
+					console.log(parseInt(thisIndex));
+
+					let oldItemList = rhit.fbSingleGroupManager.items;
+					let oldOwnerList = oldItemList[thisOwner];
+					console.log('oldOwnerList :>> ', oldOwnerList);
+					oldOwnerList.splice(thisIndex,3,newName,newPrice,newLink);
+					console.log('oldOwnerList :>> ', oldOwnerList);
+					console.log(oldItemList);
+					rhit.fbSingleGroupManager.addItem(oldItemList);
+
+					// const number = document.querySelector("#inputNumber").value;
+					// const email = document.querySelector("#inputEmail").value;
+					// console.log(`update number: ${number} and email: ${email} for user ${rhit.fbPersonalManager.name}`);
+					// rhit.fbPersonalManager.update(number, email);
+				});
 
 			});
-			
-			
+
+
 			$('.groupItems').on('shown.bs.modal', (event) => {
 				// pre-animation
 				let children = event.target;
 				console.log(children);
-				
+
 
 			});
 
 			// $('.groupItems')
-				// 	$event.preventDefault();
-				// 	$event.stopPropagation();
-				// });
+			// 	$event.preventDefault();
+			// 	$event.stopPropagation();
+			// });
 			// $('.groupItems').on("shown.bs.modal", function () { 
 			// 	console.log("hi");
 			// });
 			// $('.groupItems').modal('show'); //This can also be $("#myModal").modal({ show: true });
 
-			
+
 
 			// $('.groupItems').on('shown.bs.modal', (event) => {
 			// 	// post-animation
@@ -782,10 +846,10 @@ rhit.FbSingleGroupManager = class {
 		console.log('items[name] :>> ', items[name]);
 		console.log('index :>> ', index);
 		console.log(typeof (items[name]));
-		let test = ["iphone","300","haha","try","try","try"];
+		let test = ["iphone", "300", "haha", "try", "try", "try"];
 		items[name].splice(index, 3);
 		console.log(test);
-		test.splice(0,3)
+		test.splice(0, 3)
 		console.log(test);
 		console.log('newItems :>> ', items[name]);
 		console.log(items);
@@ -798,10 +862,36 @@ rhit.FbSingleGroupManager = class {
 
 	}
 
+	addItem(items) {
+		this._ref.update({
+				// [rhit.FB_KEY_GROUP_MEMBERS]: members,
+				// [rhit.FB_KEY_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
+				[rhit.FB_KEY_GROUP_ITEMS]: items,
+			}).then(function () {
+				console.log("Document successfully updated!");
+			})
+			.catch(function (error) {
+				console.error("Error updating document: ", error);
+			});
+	}
+
+	updateMemberList(members, items) {
+		this._ref.update({
+				[rhit.FB_KEY_GROUP_MEMBERS]: members,
+				// [rhit.FB_KEY_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
+				[rhit.FB_KEY_GROUP_ITEMS]: items,
+			}).then(function () {
+				console.log("Document successfully updated!");
+			})
+			.catch(function (error) {
+				console.error("Error updating document: ", error);
+			});
+	}
+
 	updateMember(members) {
 		this._ref.update({
 				[rhit.FB_KEY_GROUP_MEMBERS]: members,
-				[rhit.FB_KEY_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
+				// [rhit.FB_KEY_LAST_TOUCHED]: firebase.firestore.Timestamp.now(),
 			})
 			.then(function () {
 				console.log("Document successfully updated!");
@@ -1060,6 +1150,7 @@ rhit.FbAuthManager = class {
 			});
 		// this.stopListening();
 	}
+
 	stopListening() {
 		this._unsubscribe();
 	}
@@ -1084,12 +1175,27 @@ rhit.PersonalPageController = class {
 		console.log("Created personal controller");
 
 		document.querySelector("#menuAllGroups").addEventListener("click", (event) => {
+			rhit.isInProg = false;
+			rhit.isInFin = false;
 			window.location.href = "/list.html";
 		});
 
-		document.querySelector("#menuMyProfile").addEventListener("click", (event) => {
-			window.location.href = "/personal.html";
-		});
+		// document.querySelector("#menuMyInProGroups").addEventListener("click", (event) => {
+		// 	rhit.isInProg = true;
+		// 	rhit.isInFin = false;
+		// 	window.location.href = "/list.html";
+		// });
+
+		// document.querySelector("#menuMyFinGroups").addEventListener("click", (event) => {
+		// 	rhit.isInFin = true;
+		// 	rhit.isInProg = false;
+		// 	window.location.href = "/list.html";
+		// });
+
+
+		// document.querySelector("#menuMyProfile").addEventListener("click", (event) => {
+		// 	window.location.href = "/personal.html";
+		// });
 
 
 		document.querySelector("#menuSignOut").addEventListener("click", (event) => {
@@ -1100,11 +1206,12 @@ rhit.PersonalPageController = class {
 	}
 
 	updateRate() {
-		// document.querySelector("#userName").innerHTML = rhit.fbAuthManager.displayName;
-		// document.querySelector("#userEmail").innerHTML = rhit.fbAuthManager.email;
 
 		const newContainer = htmlToElement('<div id="personalInfoContainer"></div>');
-		const name  = rhit.fbPersonalManager;
+		const name = rhit.fbPersonalManager.name;
+		const number = rhit.fbPersonalManager.number;
+		const email = rhit.fbPersonalManager.email;
+		console.log(name, number, email);
 		const newPersonalCard = this._createPersonalCard(name, number, email);
 		newContainer.appendChild(newPersonalCard);
 
@@ -1112,41 +1219,55 @@ rhit.PersonalPageController = class {
 		oldContainer.removeAttribute("id");
 		oldContainer.hidden = true;
 		oldContainer.parentElement.appendChild(newContainer);
+
+		document.querySelector("#submitEditProfile").addEventListener("click", (event) => {
+			const number = document.querySelector("#inputNumber").value;
+			const email = document.querySelector("#inputEmail").value;
+			console.log(`update number: ${number} and email: ${email} for user ${rhit.fbPersonalManager.name}`);
+			rhit.fbPersonalManager.update(number, email);
+		});
+
+		document.querySelector("#EditProfileButton").addEventListener("click", (event) => {
+			console.log("get");
+			document.querySelector("#inputNumber").value = rhit.fbPersonalManager.number;
+			document.querySelector("#inputEmail").value = rhit.fbPersonalManager.email;
+			document.querySelector("#inputNumber").focus();
+		});
 	}
 
 	_createPersonalCard(name, number, email) {
 		return htmlToElement(`
-		<div class="card">
-		<img src="" alt="User Image">
-		<p id="userRating"><strong>Rating: </strong>
-		  <a href="#">
-			<span class="fa fa-star"></span>
-		  </a>
-		  <a href="#">
-			<span class="fa fa-star"></span>
-		  </a>
-		  <a href="#">
-			<span class="fa fa-star"></span>
-		  </a>
-		  <a href="#">
-			<span class="fa fa-star"></span>
-		  </a>
-		  <a href="#">
-			<span class="fa fa-star-o"></span>
-		  </a>
-		</p>
+		<div id="personalCard" class="card">
 		<div id="box">
 		  <div id="infobox">
 			<h2 id="userName">${name}</h2>
+			<p id="userRating"><strong>Rating: </strong>
+			<a href="#">
+			  <span class="fa fa-star"></span>
+			</a>
+			<a href="#">
+			  <span class="fa fa-star"></span>
+			</a>
+			<a href="#">
+			  <span class="fa fa-star"></span>
+			</a>
+			<a href="#">
+			  <span class="fa fa-star"></span>
+			</a>
+			<a href="#">
+			  <span class="fa fa-star-o"></span>
+			</a>
+		  </p>
 			<p id="userPhone"><strong>Phone Number: </strong> ${number} </p>
-			<p id="userEmail"><strong>Email: </strong> ${em} </p>
-		  </div>
-		  <div id="buttonbox">
-			<p><button id="InProgButton" type="button" class="btn">See All My In Prog Groups&nbsp;&nbsp;</button></p>
-			<p><button id="FinishedButton" type="button" class="btn">See All My Finished Groups</button></p>
+			<p id="userEmail"><strong>Email: </strong> ${email} </p>
 		  </div>
 		</div>
-	  </div>
+
+		<div id="buttonbox">
+			<p><button id="EditProfileButton" type="button" class="btn" data-toggle="modal" data-target="#editProfileDialog">Edit My Profile&nbsp;&nbsp;</button></p>
+	  	</div>
+
+		</div>
 		`);
 	}
 }
@@ -1160,19 +1281,20 @@ rhit.FbPersonalManager = class {
 		this.email = null;
 		this.number = null;
 		this._unsubscribe = null;
-		console.log("You have made the personal Manager for user", this._user.uid);
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_USERS);
+		// console.log("You have made the personal Manager for user", this._user.uid);
 	}
 
 	beginListening(changeListener) {
 		if (this._user) {
-			this._unsubscribe = firebase.firestore().collection(rhit.FB_COLLECTION_USERS)
+			this._unsubscribe = this._ref
 				.where("userName", "==", this._user.uid)
 				.onSnapshot((querySnapshot) => {
 					querySnapshot.forEach((doc) => {
 						this.name = doc.get(rhit.FB_KEY_USERS_NAME);
 						this.username = doc.get(rhit.FB_KEY_USERS_USERNAME);
 						this.email = doc.get(rhit.FB_KEY_USERS_EMAIL);
-						// this.number
+						this.number = doc.get(rhit.FB_KEY_USERS_PHONENUMBER);
 					});
 					if (changeListener) {
 						changeListener();
@@ -1187,7 +1309,49 @@ rhit.FbPersonalManager = class {
 
 	changeRate(newRate) {};
 
+	update(number, email) {
+		console.log(this._user.uid);
+		this._ref.where("userName", "==", this._user.uid)
+			.get()
+			.then((querySnapshot) => {
+				querySnapshot.forEach(function (doc) {
+					// doc.data() is never undefined for query doc snapshots
+					console.log(doc.id, " => ", doc.data());
+					firebase.firestore().collection(rhit.FB_COLLECTION_USERS).doc(doc.id).update({
+							[rhit.FB_KEY_USERS_PHONENUMBER]: number,
+							[rhit.FB_KEY_USERS_EMAIL]: email,
+						})
+						.then(function () {
+							console.log("Document successfully updated!");
+						})
+						.catch(function (error) {
+							console.error("Error updating document: ", error);
+						});
+				});
+			})
+			.catch(function (error) {
+				console.log("Error getting documents: ", error);
+			});
+	}
+
 }
+
+rhit.notifyFinished = function (group){
+	if(!("Notification" in window)){
+	  alert("This brower does not support notifications.");
+	  console.log("No support");
+	}else if(Notification.permission == "granted"){
+	  var notification = new Notification(`Hi there.\n Your group ${group.name} is ready!\n Please pick it up at ${group.location}`);
+	}else if(Notification.permission!= "denied"){
+	  Notification.requestPermission(function(permission){
+		console.log("ask for permission");
+		 if("permisson" =="granted"){
+		   var notification = new Notification(`Hi there.\n Your group ${group.name} is ready!\n Please pick it up at ${group.location}`);
+		 }
+	  });
+	}
+ }
+ 
 
 
 
@@ -1204,9 +1368,6 @@ rhit.checkForRedirects = function () {
 rhit.initializePage = function () {
 	const queryString = window.location.search;
 	const urlParams = new URLSearchParams(queryString);
-
-
-
 
 	if (document.querySelector("#listPage")) {
 		console.log(this.fbAuthManager._user);

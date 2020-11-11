@@ -237,8 +237,7 @@ figcaption.ratings a:hover {
     font-size: 18px;
 }
 
-#InProgButton,
-#FinishedButton {
+#EditProfileButton {
     margin: 5px;
     text-align: center;
     background-color: #800000;
@@ -252,9 +251,15 @@ figcaption.ratings a:hover {
     color: black;
 }
 
-#FinishedButton:hover,
-#InProgButton:hover,
-a:hover {
+#infobox {
+    padding-top: 70px;
+}
+
+#buttonbox {
+    padding: 10px 0;
+}
+
+#EditProfileButton:hover{
     opacity: 0.7;
 }
 
