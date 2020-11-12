@@ -474,6 +474,9 @@ rhit.DetailPageController = class {
 				aria-controls=${collapseName}>
 				${member}
 			  </button>
+			  <button class="btn btn-link" onclick = rhit.goTOPersonalInfo('${member}'); >
+			  <i class="material-icons" >info</i>
+			  </button>
 			</h5>
 		  </div>
 
@@ -1245,7 +1248,10 @@ rhit.PersonalPageController = class {
 		const oldContainer = document.querySelector("#personalInfoContainer");
 		oldContainer.removeAttribute("id");
 		oldContainer.hidden = true;
+		
 		oldContainer.parentElement.appendChild(newContainer);
+		oldContainer.remove();
+
 
 		document.querySelector("#submitEditProfile").addEventListener("click", (event) => {
 			const number = document.querySelector("#inputNumber").value;
@@ -1253,6 +1259,13 @@ rhit.PersonalPageController = class {
 			console.log(`update number: ${number} and email: ${email} for user ${rhit.fbPersonalManager.name}`);
 			rhit.fbPersonalManager.update(number, email);
 		});
+		const queryString = window.location.search;
+		const urlParams = new URLSearchParams(queryString);
+		const userId = urlParams.get("id");
+		if(userId && userId!=rhit.fbAuthManager.uid){
+			console.log("cannot see");
+			document.querySelector("#EditProfileButton").style.display = "none";
+		}
 
 		document.querySelector("#EditProfileButton").addEventListener("click", (event) => {
 			console.log("get");
@@ -1313,8 +1326,25 @@ rhit.FbPersonalManager = class {
 	}
 
 	beginListening(changeListener) {
+		console.log(this._user);
 		if (this._user) {
-			this._unsubscribe = this._ref
+			if(!this._user.uid){
+				this._unsubscribe = this._ref
+				.where("userName", "==", this._user)
+				.onSnapshot((querySnapshot) => {
+					querySnapshot.forEach((doc) => {
+						this.name = doc.get(rhit.FB_KEY_USERS_NAME);
+						this.username = doc.get(rhit.FB_KEY_USERS_USERNAME);
+						this.email = doc.get(rhit.FB_KEY_USERS_EMAIL);
+						this.number = doc.get(rhit.FB_KEY_USERS_PHONENUMBER);
+					});
+					if (changeListener) {
+						changeListener();
+					}
+				});
+
+			}else{
+				this._unsubscribe = this._ref
 				.where("userName", "==", this._user.uid)
 				.onSnapshot((querySnapshot) => {
 					querySnapshot.forEach((doc) => {
@@ -1327,6 +1357,9 @@ rhit.FbPersonalManager = class {
 						changeListener();
 					}
 				});
+
+			}
+			
 		}
 	}
 
@@ -1379,6 +1412,11 @@ rhit.notifyFinished = function (group) {
 	}
 }
 
+rhit.goTOPersonalInfo = function(memberId){
+	console.log("button clicked !", memberId);
+	window.location.href=`/personal.html?id=${memberId}`;
+}
+
 
 
 
@@ -1429,7 +1467,13 @@ rhit.initializePage = function () {
 
 	if (document.querySelector("#personalPage")) {
 		console.log("You are on personal Page.");
-		const user = rhit.fbAuthManager.user;
+		let user = rhit.fbAuthManager.user;
+		const userId = urlParams.get("id");
+
+		if (userId&& userId!= user.uid) {
+			// console.log("Error: Missing mq id");
+			user = userId;
+		}
 		rhit.fbPersonalManager = new rhit.FbPersonalManager(user);
 		new rhit.PersonalPageController();
 	}
