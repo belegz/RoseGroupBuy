@@ -563,7 +563,7 @@ rhit.DetailPageController = class {
 			}
 			itemsString += `<li class="list-group-item" id="totalAmount"> <span></span><span>$Total: ${totalAmount}</span></li>`;
 			console.log(itemsString);
-			let collapseName = rhit.fbAuthManager.id + name;
+			let collapseName = rhit.fbAuthManager.uid + name;
 			const newCard = this._createMemberCard(itemsString, name, collapseName);
 
 
@@ -592,7 +592,7 @@ rhit.DetailPageController = class {
 		// console.log(oldList.parentElement);
 		oldList.parentElement.appendChild(newList);
 		// console.log(oldList.parentElement);
-
+		oldList.remove();
 		//add listener to close button
 		const temp = document.getElementsByClassName("close");
 		const temp1 = document.getElementsByClassName("groupItems");
