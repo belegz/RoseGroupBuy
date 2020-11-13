@@ -444,16 +444,18 @@ rhit.DetailPageController = class {
 
 
 		document.querySelector("#submitRatePerson").addEventListener("click", (event) => {
-			const members = rhit.fbSingleGroupManager.member;
-			for (let i = 0; i < members.length; i++) {
-				const oldInfo = rhit.fbUsersManager.getUserByUid(members[i]);
-				const newRate = 0;
-				const newCount = 0;
-				rhit.fbSingleGroupManager.changeRate(newRate,newCount,memebr);
+			// const members = rhit.fbSingleGroupManager.members;
+			// for (let i = 0; i < members.length; i++) {
+			// 	console.log(members);
+			// 	const oldInfo = rhit.fbUsersManager.getUserByUid(members[i]);
+			// 	const newRate = oldInfo[0];
+			// 	const newCount = oldInfo[1];
+			// 	console.log(`Old Rate: ${newRate} and old Count: ${newCount}`);
+			// 	rhit.fbSingleGroupManager.changeRate(newRate,newCount,members[i]);
 			// 	const newPerson = this._createRateCard(members[i]);
 			// 	console.log(newPerson);
 			// 	document.querySelector("#rateListContainer").appendChild(newPerson);
-			}
+			// }
 
 
 		});
@@ -566,11 +568,16 @@ rhit.DetailPageController = class {
 
 	updateView() {
 		// console.log("Update the view");
-		document.querySelector("#cardName").innerHTML = "Group Name: "+rhit.fbSingleGroupManager.name;
-		document.querySelector("#cardSeller").innerHTML = "Seller Name: "+rhit.fbSingleGroupManager.seller;
-		document.querySelector("#cardEndTime").innerHTML = "End Time: "+rhit.fbSingleGroupManager.endTime;
-		document.querySelector("#cardLocation").innerHTML = "Pick-up Location: "+rhit.fbSingleGroupManager.location;
-		document.querySelector("#cardTags").innerHTML = "Tag: "+rhit.fbSingleGroupManager.tags;
+		// document.querySelector("#cardName").innerHTML = `Group Name: ${rhit.fbSingleGroupManager.name}`;
+		// document.querySelector("#cardSeller").innerHTML = `Seller Name: ${rhit.fbSingleGroupManager.seller}`;
+		// document.querySelector("#cardEndTime").innerHTML = `End Time: ${rhit.fbSingleGroupManager.endTime}`;
+		// document.querySelector("#cardLocation").innerHTML = `Pick-up Location: ${rhit.fbSingleGroupManager.location}`;
+		// document.querySelector("#cardTags").innerHTML = `Tag: ${rhit.fbSingleGroupManager.tags}`;
+		document.querySelector("#cardName").innerHTML = rhit.fbSingleGroupManager.name;
+		document.querySelector("#cardSeller").innerHTML = rhit.fbSingleGroupManager.seller;
+		document.querySelector("#cardEndTime").innerHTML = rhit.fbSingleGroupManager.endTime;
+		document.querySelector("#cardLocation").innerHTML = rhit.fbSingleGroupManager.location;
+		document.querySelector("#cardTags").innerHTML = rhit.fbSingleGroupManager.tags;
 
 		if (rhit.fbSingleGroupManager.owner == rhit.fbAuthManager.uid) {
 			document.querySelector("#item-fab").style.display = "inline";
