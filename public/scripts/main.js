@@ -16,7 +16,7 @@ rhit.FB_KEY_GROUP_ITEMS = "Items";
 rhit.FB_COLLECTION_USERS = "Users";
 rhit.FB_KEY_USERS_NAME = "Name";
 rhit.FB_KEY_USERS_EMAIL = "Email";
-rhit.FB_KEY_USERS_GROUPCOUNT = "GroundCount";
+rhit.FB_KEY_USERS_GROUPCOUNT = "GroupCount";
 rhit.FB_KEY_USERS_USERNAME = "userName";
 rhit.FB_KEY_USERS_RATE = "Rate";
 rhit.FB_KEY_USERS_PHONENUMBER = "PhoneNumber";
@@ -34,6 +34,7 @@ rhit.fbAuthManager = null;
 rhit.fbPersonalManager = null;
 rhit.fbUser = null;
 rhit.fbMemberItemManager = null;
+rhit.fbUsersManager = null;
 
 rhit.isInProg = false;
 rhit.isInFin = false;
@@ -44,9 +45,64 @@ rhit.User = class {
 		this.name = name;
 		this.username = userName;
 		this.email = Email;
-		this.groupCunt = 0;
+		this.groupCount = 0;
 		this.phoneNumber = "000-000-0000";
 		this.rate = 0;
+	}
+
+	// constructor(name, userName, groupCount, rate) {
+	// 	this.name = name;
+	// 	this.username = userName;
+	// 	this.email = "";
+	// 	this.groupCount = groupCount;
+	// 	this.phoneNumber = "000-000-0000";
+	// 	this.rate = rate;
+	// }
+}
+
+rhit.FbUsersManager = class {
+	constructor() {		
+		this._documentSnapshots = [];
+		this._ref = firebase.firestore().collection(rhit.FB_COLLECTION_USERS);
+		this._unsubscribe = null;
+	}
+
+	beginListening(changeListener) {
+		this._unsubscribe = this._ref
+			.onSnapshot((querySnapshot) => {
+				console.log("Find All Users");
+				this._documentSnapshots = querySnapshot.docs;
+				if (changeListener) {
+					changeListener();
+				}
+
+			});
+	}
+
+	stopListening() {
+		this._unsubscribe();
+	}
+
+	get length() {
+		return this._documentSnapshots.length;
+	}
+	getUserByUid(user) {
+		for(let i = 0; i< this._documentSnapshots.length;i++){
+			let uid = this._documentSnapshots[i].get(rhit.FB_KEY_USERS_USERNAME)
+			if(uid == user ){
+				// const  curUser = new rhit.User(
+				// 	docSnapshot.get(rhit.FB_KEY_USERS_NAME),
+				// 	docSnapshot.get(rhit.FB_KEY_USERS_USERNAME),
+				// 	docSnapshot.get(rhit.FB_KEY_USERS_GROUPCOUNT),
+				// 	docSnapshot.get(rhit.FB_KEY_USERS_RATE)
+					
+				// );
+				const oldRate = this._documentSnapshots[i].get(rhit.FB_KEY_USERS_RATE);
+				const oldCount = this._documentSnapshots[i].get(rhit.FB_KEY_USERS_GROUPCOUNT);
+				return [oldRate,oldCount];
+			}
+		}
+		
 	}
 }
 
@@ -388,12 +444,17 @@ rhit.DetailPageController = class {
 
 
 		document.querySelector("#submitRatePerson").addEventListener("click", (event) => {
-			// const members = rhit.fbSingleGroupManager.member;
-			// for (let i = 0; i < members.length; i++) {
+			const members = rhit.fbSingleGroupManager.member;
+			for (let i = 0; i < members.length; i++) {
+				const oldInfo = rhit.fbUsersManager.getUserByUid(members[i]);
+				const newRate = 0;
+				const newCount = 0;
+				rhit.fbSingleGroupManager.changeRate(newRate,newCount,memebr);
 			// 	const newPerson = this._createRateCard(members[i]);
 			// 	console.log(newPerson);
 			// 	document.querySelector("#rateListContainer").appendChild(newPerson);
-			// }
+			}
+
 
 		});
 
@@ -438,6 +499,7 @@ rhit.DetailPageController = class {
 
 		// console.log("Made the detail page controller");
 		rhit.fbSingleGroupManager.beginListening(this.updateView.bind(this));
+		// rhit.fbUsersManager.beginListening(this.updateView.bind(this));
 		// rhit.FbMemberItemManager.beginListening(updateView.bind(this));
 	}
 
@@ -470,6 +532,9 @@ rhit.DetailPageController = class {
 		<div class="card">
 		  <div class="card-header" id="headingTwo">
 			<h5 class="mb-0">
+			  <button id="remove" class="btn btn-link" onclick = rhit.removeMember('${member}');>
+			  <i class="material-icons" >clear</i>
+			  </button>
 			  <button class="btn btn-link" data-toggle="collapse" data-target="#${collapseName}" aria-expanded="false"
 				aria-controls=${collapseName}>
 				${member}
@@ -498,15 +563,14 @@ rhit.DetailPageController = class {
 	  </div>`);
 	}
 
+
 	updateView() {
 		// console.log("Update the view");
-		// document.querySelector("#cardGroup").innerHTML = rhit.fbSingleGroupManager.Group;
-		// document.querySelector("#cardMovie").innerHTML = rhit.fbSingleGroupManager.movie;
-		document.querySelector("#cardName").innerHTML = rhit.fbSingleGroupManager.name;
-		document.querySelector("#cardSeller").innerHTML = rhit.fbSingleGroupManager.seller;
-		document.querySelector("#cardEndTime").innerHTML = rhit.fbSingleGroupManager.endTime;
-		document.querySelector("#cardLocation").innerHTML = rhit.fbSingleGroupManager.location;
-		document.querySelector("#cardTags").innerHTML = rhit.fbSingleGroupManager.tags;
+		document.querySelector("#cardName").innerHTML = "Group Name: "+rhit.fbSingleGroupManager.name;
+		document.querySelector("#cardSeller").innerHTML = "Seller Name: "+rhit.fbSingleGroupManager.seller;
+		document.querySelector("#cardEndTime").innerHTML = "End Time: "+rhit.fbSingleGroupManager.endTime;
+		document.querySelector("#cardLocation").innerHTML = "Pick-up Location: "+rhit.fbSingleGroupManager.location;
+		document.querySelector("#cardTags").innerHTML = "Tag: "+rhit.fbSingleGroupManager.tags;
 
 		if (rhit.fbSingleGroupManager.owner == rhit.fbAuthManager.uid) {
 			document.querySelector("#item-fab").style.display = "inline";
@@ -555,7 +619,8 @@ rhit.DetailPageController = class {
 			let itemsString = "";
 			let totalAmount = 0;
 			console.log(memberItem);
-			for (let j = 0; j < memberItem.length / 3; j++) {
+			// jacket 14 "" shoe 12 www.taobao.com  5 012 345 
+ 			for (let j = 0; j < memberItem.length; j+=3) {
 				totalAmount += parseInt(memberItem[j + 1]);
 				if (memberItem[j + 2] != "") {
 					console.log('memberItem[j+2] :>> ', memberItem[j + 2]);
@@ -568,19 +633,6 @@ rhit.DetailPageController = class {
 			console.log(itemsString);
 			let collapseName = rhit.fbAuthManager.uid + name;
 			const newCard = this._createMemberCard(itemsString, name, collapseName);
-
-
-			// temp.forEach((tag)=>{
-			// 	tag.addEventListener("click", (event) => {
-			// 		var div = tag.parentElement;
-			// 		div.style.display = "none";
-			// 	});
-			// });
-			// temp.onclick = (event) => {
-			// 	// console.log(`You clicked on ${mq.id}`);
-			// 	// rhit.storage.setMovieGroupId(mq.id);
-			// 	// window.location.href = `/groupdetail.html?id=${group.id}`;
-			// };
 
 			newList.appendChild(newCard);
 		}
@@ -682,11 +734,6 @@ rhit.DetailPageController = class {
 					console.log('oldOwnerList :>> ', oldOwnerList);
 					console.log(oldItemList);
 					rhit.fbSingleGroupManager.addItem(oldItemList);
-
-					// const number = document.querySelector("#inputNumber").value;
-					// const email = document.querySelector("#inputEmail").value;
-					// console.log(`update number: ${number} and email: ${email} for user ${rhit.fbPersonalManager.name}`);
-					// rhit.fbPersonalManager.update(number, email);
 				});
 
 			});
@@ -700,33 +747,10 @@ rhit.DetailPageController = class {
 
 			});
 
-			// $('.groupItems')
-			// 	$event.preventDefault();
-			// 	$event.stopPropagation();
-			// });
-			// $('.groupItems').on("shown.bs.modal", function () { 
-			// 	console.log("hi");
-			// });
-			// $('.groupItems').modal('show'); //This can also be $("#myModal").modal({ show: true });
-
-
-
-			// $('.groupItems').on('shown.bs.modal', (event) => {
-			// 	// post-animation
-			// 	document.querySelector("#inputItemName").focus();
-			// });
 			$(".groupItems a").click(function (e) {
 				// Do something
 				e.stopPropagation();
 			});
-
-			// $('.groupItems').add('.itemLink').click((event) => {
-			// 	event.stopPropagation();
-			// });
-			// currLink.addEventListener("click", function($event){
-			// 	$event.preventDefault();
-			// 	$event.stopPropagation();
-			// });
 
 
 			tag.addEventListener("click", (event) => {
@@ -833,7 +857,7 @@ rhit.FbSingleGroupManager = class {
 	}
 
 	// getName(id) {
-		
+
 	// 	firebase.firestore().collection(rhit.FB_COLLECTION_USERS)
 	// 		.where("userName", "==", id)
 	// 		.get()
@@ -848,6 +872,32 @@ rhit.FbSingleGroupManager = class {
 	// 			console.log("Error getting documents: ", error);
 	// 		});
 	// }
+
+	
+	changeRate(newCount, newRate, uid) {
+		firebase.firestore().collection(rhit.FB_COLLECTION_USERS).where("userName", "==", uid)
+			.get()
+			.then((querySnapshot) => {
+				querySnapshot.forEach(function (doc) {
+					// doc.data() is never undefined for query doc snapshots
+					console.log(doc.id, " => ", doc.data());
+
+					firebase.firestore().collection(rhit.FB_COLLECTION_USERS).doc(doc.id).update({
+							[rhit.FB_KEY_USERS_GROUPCOUNT]: newCount,
+							[rhit.FB_KEY_USERS_RATE]: newRate,
+						})
+						.then(function () {
+							console.log("Document successfully updated!");
+						})
+						.catch(function (error) {
+							console.error("Error updating document: ", error);
+						});
+				});
+			})
+			.catch(function (error) {
+				console.log("Error getting documents: ", error);
+			});
+	}
 
 	stopListening() {
 		this._unsubscribe();
@@ -1029,9 +1079,9 @@ rhit.FbAuthManager = class {
 							rhit.fbUser = new rhit.User(name, username, email);
 							// return;
 						});
-						// if (changeListener) {
-						// 	changeListener();
-						// }
+						if (changeListener) {
+							changeListener();
+						}
 
 					});
 			}
@@ -1210,24 +1260,6 @@ rhit.PersonalPageController = class {
 			window.location.href = "/list.html";
 		});
 
-		// document.querySelector("#menuMyInProGroups").addEventListener("click", (event) => {
-		// 	rhit.isInProg = true;
-		// 	rhit.isInFin = false;
-		// 	window.location.href = "/list.html";
-		// });
-
-		// document.querySelector("#menuMyFinGroups").addEventListener("click", (event) => {
-		// 	rhit.isInFin = true;
-		// 	rhit.isInProg = false;
-		// 	window.location.href = "/list.html";
-		// });
-
-
-		// document.querySelector("#menuMyProfile").addEventListener("click", (event) => {
-		// 	window.location.href = "/personal.html";
-		// });
-
-
 		document.querySelector("#menuSignOut").addEventListener("click", (event) => {
 			rhit.fbAuthManager.signOut();
 		});
@@ -1248,7 +1280,7 @@ rhit.PersonalPageController = class {
 		const oldContainer = document.querySelector("#personalInfoContainer");
 		oldContainer.removeAttribute("id");
 		oldContainer.hidden = true;
-		
+
 		oldContainer.parentElement.appendChild(newContainer);
 		oldContainer.remove();
 
@@ -1262,7 +1294,7 @@ rhit.PersonalPageController = class {
 		const queryString = window.location.search;
 		const urlParams = new URLSearchParams(queryString);
 		const userId = urlParams.get("id");
-		if(userId && userId!=rhit.fbAuthManager.uid){
+		if (userId && userId != rhit.fbAuthManager.uid) {
 			console.log("cannot see");
 			document.querySelector("#EditProfileButton").style.display = "none";
 		}
@@ -1328,46 +1360,44 @@ rhit.FbPersonalManager = class {
 	beginListening(changeListener) {
 		console.log(this._user);
 		if (this._user) {
-			if(!this._user.uid){
+			if (!this._user.uid) {
 				this._unsubscribe = this._ref
-				.where("userName", "==", this._user)
-				.onSnapshot((querySnapshot) => {
-					querySnapshot.forEach((doc) => {
-						this.name = doc.get(rhit.FB_KEY_USERS_NAME);
-						this.username = doc.get(rhit.FB_KEY_USERS_USERNAME);
-						this.email = doc.get(rhit.FB_KEY_USERS_EMAIL);
-						this.number = doc.get(rhit.FB_KEY_USERS_PHONENUMBER);
+					.where("userName", "==", this._user)
+					.onSnapshot((querySnapshot) => {
+						querySnapshot.forEach((doc) => {
+							this.name = doc.get(rhit.FB_KEY_USERS_NAME);
+							this.username = doc.get(rhit.FB_KEY_USERS_USERNAME);
+							this.email = doc.get(rhit.FB_KEY_USERS_EMAIL);
+							this.number = doc.get(rhit.FB_KEY_USERS_PHONENUMBER);
+						});
+						if (changeListener) {
+							changeListener();
+						}
 					});
-					if (changeListener) {
-						changeListener();
-					}
-				});
 
-			}else{
+			} else {
 				this._unsubscribe = this._ref
-				.where("userName", "==", this._user.uid)
-				.onSnapshot((querySnapshot) => {
-					querySnapshot.forEach((doc) => {
-						this.name = doc.get(rhit.FB_KEY_USERS_NAME);
-						this.username = doc.get(rhit.FB_KEY_USERS_USERNAME);
-						this.email = doc.get(rhit.FB_KEY_USERS_EMAIL);
-						this.number = doc.get(rhit.FB_KEY_USERS_PHONENUMBER);
+					.where("userName", "==", this._user.uid)
+					.onSnapshot((querySnapshot) => {
+						querySnapshot.forEach((doc) => {
+							this.name = doc.get(rhit.FB_KEY_USERS_NAME);
+							this.username = doc.get(rhit.FB_KEY_USERS_USERNAME);
+							this.email = doc.get(rhit.FB_KEY_USERS_EMAIL);
+							this.number = doc.get(rhit.FB_KEY_USERS_PHONENUMBER);
+						});
+						if (changeListener) {
+							changeListener();
+						}
 					});
-					if (changeListener) {
-						changeListener();
-					}
-				});
 
 			}
-			
+
 		}
 	}
 
 	stopListening() {
 		this._unsubscribe();
 	}
-
-	changeRate(newRate) {};
 
 	update(number, email) {
 		console.log(this._user.uid);
@@ -1394,7 +1424,7 @@ rhit.FbPersonalManager = class {
 			});
 	}
 
-}
+};
 
 rhit.notifyFinished = function (group) {
 	if (!("Notification" in window)) {
@@ -1412,9 +1442,25 @@ rhit.notifyFinished = function (group) {
 	}
 }
 
-rhit.goTOPersonalInfo = function(memberId){
+rhit.goTOPersonalInfo = function (memberId) {
 	console.log("button clicked !", memberId);
-	window.location.href=`/personal.html?id=${memberId}`;
+	window.location.href = `/personal.html?id=${memberId}`;
+}
+
+rhit.removeMember = (memberId) => {
+	if(rhit.fbSingleGroupManager.owner != rhit.fbAuthManager.uid){
+		return;
+	}
+	if(rhit.fbAuthManager.uid==memberId){
+		return;
+	}
+	console.log("remove ", memberId);
+	let members = rhit.fbSingleGroupManager.members;
+	let items = rhit.fbSingleGroupManager.items;
+	delete items[memberId];
+	const index = members.indexOf(memberId);
+	members.splice(index, 1);
+	rhit.fbSingleGroupManager.updateMemberList(members, items);
 }
 
 
@@ -1462,6 +1508,7 @@ rhit.initializePage = function () {
 			window.location.href = "/list.html";
 		}
 		rhit.fbSingleGroupManager = new rhit.FbSingleGroupManager(groupId);
+		// rhit.fbUsersManager = new rhit.FbUsersManager();
 		new rhit.DetailPageController();
 	}
 
@@ -1470,7 +1517,7 @@ rhit.initializePage = function () {
 		let user = rhit.fbAuthManager.user;
 		const userId = urlParams.get("id");
 
-		if (userId&& userId!= user.uid) {
+		if (userId && userId != user.uid) {
 			// console.log("Error: Missing mq id");
 			user = userId;
 		}
