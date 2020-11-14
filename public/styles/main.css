@@ -64,7 +64,7 @@ h3 {
     align-items: center;
 }
 
-#card-title {
+.card-title {
     /* display: inline-block; */
     padding: .25em .4em;
     font-size: 1.75em;
