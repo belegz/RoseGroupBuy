@@ -1093,6 +1093,7 @@ rhit.FbAuthManager = class {
 							let email = doc.get(rhit.FB_KEY_USERS_EMAIL);
 							console.log('email :>> ', email);
 							rhit.fbUser = new rhit.User(name, username, email);
+							rhit.fbAuthManager.add(name, username, email);
 							// return;
 						});
 						// if (changeListener) {
@@ -1100,6 +1101,7 @@ rhit.FbAuthManager = class {
 						// }
 
 					});
+				
 			}
 
 
@@ -1511,7 +1513,7 @@ rhit.main = function () {
 		// console.log("auth change callback fired. TODO: check for redirects.");
 		console.log("isSignedIn = ", rhit.fbAuthManager.isSignedIn);
 
-
+		
 
 		// Check for redirects
 		rhit.checkForRedirects();
